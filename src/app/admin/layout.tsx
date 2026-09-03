@@ -46,9 +46,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Gestão de Pedidos
           </Link>
           <Link 
-            href="/admin/catalogo"
+            href="/admin/produtos"
             className={`flex items-center px-4 py-3 text-sm rounded-sm transition-colors ${
-              pathname.includes('/admin/catalogo') 
+              pathname.includes('/admin/produtos') 
                 ? 'bg-green-50 text-[var(--color-brand-green-deep)] font-semibold' 
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
