@@ -10,6 +10,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { AlertCircle, ShoppingBag, Truck, MapPin, User, ChevronRight } from 'lucide-react'
 import Topbar from '@/components/layout/Topbar'
+import PaymentSection from '@/components/checkout/PaymentSection'
+import { createOrder } from '@/app/actions/create-order'
+import { useRouter } from 'next/navigation'
 
 // --- Simple Mask Helpers ---
 const applyCpfMask = (v: string) => {
@@ -43,6 +46,8 @@ export default function CheckoutPage() {
   const { items, getSubtotal, hasMadeToOrderItems } = useCartStore()
   const [mounted, setMounted] = useState(false)
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
+  
+  const router = useRouter()
   
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -91,10 +96,23 @@ export default function CheckoutPage() {
     }
   }, [zipCode, setValue, hasMadeToOrder, maxProductionDays])
 
-  const onSubmit = async (data: CheckoutFormData) => {
-    // Preparar payload e redirecionar / chamar API (Mock para demonstração)
-    console.log('Valid Checkout Data:', data)
-    alert('Pedido validado! Redirecionando para pagamento...')
+  const onSubmit = async (data: CheckoutFormData, paymentMethod: 'PIX' | 'CREDIT_CARD') => {
+    try {
+      const res = await createOrder({
+        formData: data,
+        cartItems: items,
+        paymentMethod
+      })
+
+      if (res.success && res.orderNumber) {
+        router.push(`/pedido/${res.orderNumber}`)
+      } else {
+        alert(res.error || 'Erro ao processar pedido')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Erro inesperado ao processar o pedido.')
+    }
   }
 
   if (!mounted) return null
@@ -129,7 +147,7 @@ export default function CheckoutPage() {
       </header>
 
       <main className="container mx-auto px-4 md:px-8 py-8 md:py-12">
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           
           {/* Formulários (Esquerda) */}
           <div className="lg:col-span-7 space-y-8">
@@ -378,23 +396,18 @@ export default function CheckoutPage() {
                 {errors.termsAccepted && <p className="text-red-500 text-xs mt-1">{errors.termsAccepted.message}</p>}
               </div>
 
-              {/* Botão Submeter */}
-              <button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="w-full bg-[var(--color-brand-green-deep)] text-white py-4 font-bold tracking-widest uppercase hover:bg-[var(--color-brand-dark)] transition-colors flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Processando...' : (
-                  <>
-                    Avançar para Pagamento
-                    <ChevronRight className="w-5 h-5 ml-2" />
-                  </>
-                )}
-              </button>
+              {/* Pagamento em vez de Botão Submeter */}
+              <PaymentSection 
+                total={total}
+                isSubmitting={isSubmitting}
+                termsAccepted={termsAccepted}
+                termsError={errors.termsAccepted?.message}
+                onSubmit={(method) => handleSubmit((data) => onSubmit(data, method))()}
+              />
             </div>
           </div>
           
-        </form>
+        </div>
       </main>
     </div>
   )
