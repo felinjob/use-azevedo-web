@@ -109,7 +109,7 @@ export const useCartStore = create<CartStore>()(
       },
     }),
     {
-      name: 'use-azevedo-cart',
+      name: '@useazevedo:cart',
     }
   )
 )
