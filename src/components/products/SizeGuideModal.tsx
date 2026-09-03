@@ -3,18 +3,12 @@
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
 
-interface Variant {
-  size: string
-  bustCm: any | null
-  waistCm: any | null
-  hipCm: any | null
-  lengthCm: any | null
-}
+import { SerializedVariant } from '@/lib/serializers'
 
 interface SizeGuideModalProps {
   isOpen: boolean
   onClose: () => void
-  variants: Variant[]
+  variants: SerializedVariant[]
 }
 
 export default function SizeGuideModal({ isOpen, onClose, variants }: SizeGuideModalProps) {

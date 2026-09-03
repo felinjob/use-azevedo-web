@@ -1,13 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { Prisma } from '@prisma/client'
 
 interface ProductCardProps {
   product: {
     slug: string;
     name: string;
-    price: any; // Prisma Decimal
-    originalPrice?: any | null;
+    price: Prisma.Decimal; // Prisma Decimal
+    originalPrice?: Prisma.Decimal | null;
     availability: string;
     images: string[];
     variants: { size: string }[];

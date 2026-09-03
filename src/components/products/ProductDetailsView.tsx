@@ -3,39 +3,22 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import SizeGuideModal from './SizeGuideModal'
-import { MessageCircle, ShoppingBag, Truck, ArrowLeftRight } from 'lucide-react'
+import { MessageCircle, ShoppingBag, Truck, ArrowLeftRight, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-interface ProductVariant {
-  id: string
-  size: string
-  stockQuantity: number
-  bustCm: any | null
-  waistCm: any | null
-  hipCm: any | null
-  lengthCm: any | null
-}
+import { useCartStore } from '@/lib/store/cart'
+import { SerializedProduct, SerializedVariant } from '@/lib/serializers'
 
 interface ProductDetailsViewProps {
-  product: {
-    id: string
-    name: string
-    description: string
-    price: any
-    originalPrice: any | null
-    availability: string
-    productionTimeDays: number
-    fabricDetails: string
-    images: string[]
-    category: { name: string }
-    variants: ProductVariant[]
-  }
+  product: SerializedProduct
 }
 
 export default function ProductDetailsView({ product }: ProductDetailsViewProps) {
   const [activeImage, setActiveImage] = useState(product.images[0] || '')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
+  const [showSizeError, setShowSizeError] = useState(false)
+
+  const { addItem, openCart } = useCartStore()
 
   const isReadyToShip = product.availability === 'READY_TO_SHIP'
   const priceNum = Number(product.price)
@@ -51,8 +34,13 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
   
   // Create a map to ensure unique sizes and their total stock
   const sizeStockMap = new Map<string, number>()
+  const sizeVariantMap = new Map<string, SerializedVariant>()
+  
   sortedVariants.forEach(v => {
     sizeStockMap.set(v.size, (sizeStockMap.get(v.size) || 0) + v.stockQuantity)
+    if (!sizeVariantMap.has(v.size)) {
+      sizeVariantMap.set(v.size, v)
+    }
   })
 
   const uniqueSizes = Array.from(sizeStockMap.keys())
@@ -60,6 +48,36 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
   const handleWhatsAppClick = () => {
     const text = `Olá, Amanda! Estou na loja olhando o ${product.name} no tamanho ${selectedSize || '[Não Selecionado]'} e gostaria de uma ajuda com o caimento.`
     window.open(`https://wa.me/5521978594358?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
+  const handleAddToCart = () => {
+    if (!selectedSize) {
+      setShowSizeError(true)
+      // Scroll to size selector smoothly
+      document.getElementById('size-selector')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
+    setShowSizeError(false)
+    const variant = sizeVariantMap.get(selectedSize)
+    
+    if (variant) {
+      addItem({
+        productId: product.id,
+        variantId: variant.id,
+        name: product.name,
+        slug: product.slug,
+        price: priceNum,
+        image: product.images[0] || '',
+        size: selectedSize,
+        color: 'Única', // Could be dynamic if colors exist
+        availability: product.availability as 'READY_TO_SHIP' | 'MADE_TO_ORDER',
+        productionTimeDays: product.productionTimeDays,
+        quantity: 1,
+        maxStock: variant.stockQuantity,
+      })
+      openCart()
+    }
   }
 
   return (
@@ -139,7 +157,7 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
         </div>
 
         {/* Size Selector */}
-        <div className="mb-8">
+        <div id="size-selector" className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-bold uppercase tracking-wider text-[var(--color-brand-dark)]">
               Tamanho
@@ -161,14 +179,18 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
                 <button
                   key={size}
                   disabled={isOutOfStock}
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => {
+                    setSelectedSize(size)
+                    setShowSizeError(false)
+                  }}
                   className={cn(
                     "w-12 h-12 flex items-center justify-center border transition-all text-sm font-bold rounded-sm",
                     isOutOfStock 
                       ? "opacity-40 cursor-not-allowed bg-gray-100 border-gray-200 text-gray-400 relative overflow-hidden before:absolute before:inset-0 before:border-t before:border-gray-300 before:rotate-45 before:scale-150" 
                       : selectedSize === size
                         ? "border-[var(--color-brand-green-deep)] bg-[var(--color-brand-green-deep)] text-white"
-                        : "border-gray-300 hover:border-[var(--color-brand-green-deep)] text-[var(--color-brand-dark)]"
+                        : "border-gray-300 hover:border-[var(--color-brand-green-deep)] text-[var(--color-brand-dark)]",
+                    showSizeError && !selectedSize ? "border-red-500 animate-pulse" : ""
                   )}
                 >
                   <span className="relative z-10">{size}</span>
@@ -176,13 +198,19 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
               )
             })}
           </div>
+          {showSizeError && (
+            <p className="text-red-500 text-xs mt-3 flex items-center gap-1 font-bold">
+              <AlertCircle className="w-4 h-4" />
+              Por favor, selecione um tamanho antes de adicionar à sacola.
+            </p>
+          )}
         </div>
 
         {/* Actions */}
         <div className="flex flex-col gap-3 mb-10">
           <button 
-            className="w-full bg-[var(--color-brand-dark)] hover:bg-black text-white font-bold py-4 px-6 tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
-            disabled={!selectedSize}
+            onClick={handleAddToCart}
+            className="w-full bg-[var(--color-brand-dark)] hover:bg-black text-white font-bold py-4 px-6 tracking-[0.2em] uppercase transition-colors flex items-center justify-center gap-2 shadow-lg"
           >
             <ShoppingBag className="w-5 h-5" />
             Adicionar à Sacola

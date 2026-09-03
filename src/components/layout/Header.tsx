@@ -1,7 +1,22 @@
+'use client'
+
 import Link from 'next/link'
 import { Search, ShoppingBag, MessageCircle } from 'lucide-react'
+import { useCartStore } from '@/lib/store/cart'
+import { useEffect, useState } from 'react'
 
 export default function Header() {
+  const { openCart, getTotalItems } = useCartStore()
+  
+  // Hydration fix for Zustand
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true)
+  }, [])
+
+  const totalItems = getTotalItems()
+
   return (
     <header className="bg-[var(--color-brand-green-deep)] text-white sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 sm:py-6">
@@ -41,11 +56,17 @@ export default function Header() {
             <a href="https://wa.me/5521978594358" target="_blank" rel="noreferrer" className="hidden sm:block hover:text-[var(--color-brand-gold-light)] transition-colors" aria-label="WhatsApp">
               <MessageCircle className="w-5 h-5" />
             </a>
-            <button className="relative hover:text-[var(--color-brand-gold-light)] transition-colors" aria-label="Sacola">
+            <button 
+              onClick={openCart}
+              className="relative hover:text-[var(--color-brand-gold-light)] transition-colors" 
+              aria-label="Sacola"
+            >
               <ShoppingBag className="w-5 h-5" />
-              <span className="absolute -top-2 -right-2 bg-[var(--color-brand-gold)] text-[var(--color-brand-dark)] text-[0.65rem] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                0
-              </span>
+              {mounted && totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[var(--color-brand-gold)] text-[var(--color-brand-dark)] text-[0.65rem] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
             </button>
           </div>
         </div>
