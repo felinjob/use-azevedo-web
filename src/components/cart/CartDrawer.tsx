@@ -66,6 +66,30 @@ export default function CartDrawer() {
           </button>
         </div>
 
+        {/* Free Shipping Progress Bar */}
+        {mounted && items.length > 0 && (
+          <div className="bg-green-50 px-6 py-4 border-b border-green-100 flex flex-col gap-2">
+            <p className="text-xs font-bold text-center text-[var(--color-brand-green-deep)] tracking-wide">
+              {(() => {
+                if (subtotal < 199) {
+                  return `Faltam R$ ${(199 - subtotal).toFixed(2).replace('.', ',')} para Frete Grátis no PIX`
+                } else if (subtotal < 299) {
+                  return `Frete Grátis no PIX! Faltam R$ ${(299 - subtotal).toFixed(2).replace('.', ',')} para Grátis no Cartão`
+                } else {
+                  return '🎉 Você desbloqueou Frete Grátis para PIX e Cartão!'
+                }
+              })()}
+            </p>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
+              <div 
+                className="h-full bg-[var(--color-brand-green-deep)] transition-all duration-500 ease-out"
+                style={{ width: `${Math.min((subtotal / 299) * 100, 100)}%` }}
+              />
+              <div className="absolute top-0 bottom-0 left-[66.5%] w-px bg-white/50 z-10" title="Alvo Pix (R$ 199)" />
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {!mounted ? null : items.length === 0 ? (

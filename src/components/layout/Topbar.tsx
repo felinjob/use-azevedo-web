@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const MESSAGES = [
-  "Frete Expresso via Motoboy para o Rio de Janeiro e Região",
-  "Parcele em até 12x no cartão ou pague via Pix",
-  "Moda Mid e Plus Size do 44 ao 56+ com Caimento Impecável"
+  "📦 Frete Grátis acima de R$ 199 (Pix) ou R$ 299 (Cartão)!",
+  "📏 Na dúvida sobre o tamanho? Use nosso Provador Virtual!",
+  "💳 Parcele suas compras em até 12x sem juros no Cartão"
 ]
 
 export default function Topbar() {

@@ -8,6 +8,8 @@ interface PaymentSectionProps {
   isSubmitting: boolean
   termsAccepted: boolean
   termsError?: string
+  method: 'PIX' | 'CREDIT_CARD'
+  setMethod: (method: 'PIX' | 'CREDIT_CARD') => void
   onSubmit: (method: 'PIX' | 'CREDIT_CARD') => void
 }
 
@@ -27,9 +29,7 @@ const applyExpiryMask = (v: string) => {
   return v
 }
 
-export default function PaymentSection({ total, isSubmitting, termsAccepted, termsError, onSubmit }: PaymentSectionProps) {
-  const [method, setMethod] = useState<'PIX' | 'CREDIT_CARD'>('PIX')
-  
+export default function PaymentSection({ total, isSubmitting, termsAccepted, termsError, method, setMethod, onSubmit }: PaymentSectionProps) {
   // Card local state for visual simulation (not submitted to our servers)
   const [cardNumber, setCardNumber] = useState('')
   const [cardName, setCardName] = useState('')

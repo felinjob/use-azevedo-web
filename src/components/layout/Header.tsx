@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { Search, ShoppingBag, MessageCircle, Menu } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { useUIStore } from '@/lib/store/ui'
@@ -32,15 +31,8 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex flex-col items-center justify-center flex-1 lg:flex-none hover:opacity-90 transition-opacity">
-            <div className="relative w-36 h-11 sm:w-44 sm:h-13">
-              <Image 
-                src="/logo-use-azevedo.png" 
-                alt="Use Azevedo" 
-                fill 
-                priority
-                className="object-contain"
-                sizes="(max-width: 640px) 144px, 176px"
-              />
+            <div className="flex flex-col items-center justify-center leading-none">
+              <span className="font-serif text-2xl sm:text-3xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
             </div>
           </Link>
 

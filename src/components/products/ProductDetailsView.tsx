@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import SizeGuideModal from './SizeGuideModal'
-import { MessageCircle, ShoppingBag, Truck, ArrowLeftRight, AlertCircle } from 'lucide-react'
+import FitFinderModal from './FitFinderModal'
+import ProductFAQ from './ProductFAQ'
+import { MessageCircle, ShoppingBag, Truck, ArrowLeftRight, AlertCircle, Ruler } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCartStore } from '@/lib/store/cart'
 import { SerializedProduct, SerializedVariant } from '@/lib/serializers'
@@ -16,6 +18,7 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
   const [activeImage, setActiveImage] = useState(product.images[0] || '')
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
+  const [isFitFinderOpen, setIsFitFinderOpen] = useState(false)
   const [showSizeError, setShowSizeError] = useState(false)
 
   const { addItem, openCart } = useCartStore()
@@ -158,16 +161,25 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
 
         {/* Size Selector */}
         <div id="size-selector" className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
             <span className="text-sm font-bold uppercase tracking-wider text-[var(--color-brand-dark)]">
               Tamanho
             </span>
-            <button 
-              onClick={() => setIsSizeGuideOpen(true)}
-              className="text-xs text-[var(--color-brand-gold)] hover:text-[var(--color-brand-gold-light)] font-bold tracking-wide uppercase underline underline-offset-4 transition-colors"
-            >
-              Descubra seu tamanho / Tabela
-            </button>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setIsFitFinderOpen(true)}
+                className="flex items-center gap-1 text-xs text-[var(--color-brand-green-deep)] hover:text-[var(--color-brand-dark)] font-bold tracking-wide uppercase transition-colors"
+              >
+                <Ruler className="w-3.5 h-3.5" />
+                Descubra seu Tamanho
+              </button>
+              <button 
+                onClick={() => setIsSizeGuideOpen(true)}
+                className="text-xs text-[var(--color-brand-gold)] hover:text-[var(--color-brand-gold-light)] font-bold tracking-wide uppercase underline underline-offset-4 transition-colors"
+              >
+                Tabela de Medidas
+              </button>
+            </div>
           </div>
           
           <div className="flex flex-wrap gap-3">
@@ -235,6 +247,8 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
           <p className="text-sm text-[var(--color-brand-muted)]">{product.fabricDetails}</p>
         </div>
 
+        <ProductFAQ />
+
         {/* Policies */}
         <div className="space-y-4 border-t border-gray-200 pt-6">
           <div className="flex items-start gap-3">
@@ -259,6 +273,16 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
         isOpen={isSizeGuideOpen} 
         onClose={() => setIsSizeGuideOpen(false)} 
         variants={product.variants} 
+      />
+
+      <FitFinderModal 
+        isOpen={isFitFinderOpen}
+        onClose={() => setIsFitFinderOpen(false)}
+        variants={product.variants}
+        onSelectSize={(size) => {
+          setSelectedSize(size)
+          setShowSizeError(false)
+        }}
       />
     </div>
   )

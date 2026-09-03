@@ -58,7 +58,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   const orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' }
 
-  const [products, highlights] = await Promise.all([
+  const [products, highlights, featuredProducts] = await Promise.all([
     prisma.product.findMany({
       where,
       orderBy,
@@ -66,12 +66,21 @@ export default async function Home({ searchParams }: HomePageProps) {
         category: true,
         variants: true,
       },
-      take: 24,
+      take: isFiltered ? 24 : 4,
     }),
     prisma.bannerHighlight.findMany({
       where: { active: true },
       orderBy: { order: 'asc' },
     }),
+    !isFiltered ? prisma.product.findMany({
+      where: { active: true, featured: true },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        category: true,
+        variants: true,
+      },
+      take: 4,
+    }) : Promise.resolve([]),
   ])
 
   const heroSlides = highlights.filter((h) => h.type === 'HERO_SLIDE')
@@ -209,11 +218,24 @@ export default async function Home({ searchParams }: HomePageProps) {
 
             {/* Grid de Produtos Editorial */}
             {products.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                
+                {!isFiltered && (
+                  <div className="mt-10 flex justify-center">
+                    <Link 
+                      href="/?filtro=novidades#colecao"
+                      className="border border-[var(--color-brand-green-deep)] text-[var(--color-brand-green-deep)] hover:bg-[var(--color-brand-green-deep)] hover:text-white px-8 py-3 text-xs uppercase font-bold tracking-[0.15em] transition-colors"
+                    >
+                      Ver todos os Lançamentos
+                    </Link>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-16 max-w-md mx-auto bg-white p-8 rounded-md border border-[var(--color-brand-muted)]/15 shadow-xs">
                 <p className="text-base text-[var(--color-brand-dark)] font-semibold mb-2">
@@ -232,6 +254,38 @@ export default async function Home({ searchParams }: HomePageProps) {
             )}
           </div>
         </section>
+
+        {/* Seção Destaques / Mais Vendidos (Visível apenas se não houver filtros) */}
+        {!isFiltered && featuredProducts.length > 0 && (
+          <section className="py-12 sm:py-16 bg-[var(--color-brand-offwhite)] border-t border-[var(--color-brand-muted)]/10">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col items-center mb-8 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[var(--color-brand-dark)] mb-3 text-center">
+                  Destaques da Coleção
+                </h2>
+                <div className="w-16 h-[2px] bg-[var(--color-brand-gold)] mb-4"></div>
+                <p className="text-sm text-[var(--color-brand-muted)] text-center max-w-xl">
+                  As peças mais amadas pelas nossas clientes, com caimento impecável e modelagem que abraça suas curvas.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
+                {featuredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              <div className="mt-10 flex justify-center">
+                <Link 
+                  href="/?categoria=vestidos-e-conjuntos#colecao"
+                  className="bg-[var(--color-brand-dark)] text-white hover:opacity-90 px-8 py-3 text-xs uppercase font-bold tracking-[0.15em] transition-opacity shadow-md"
+                >
+                  Ver Peças Essenciais
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />

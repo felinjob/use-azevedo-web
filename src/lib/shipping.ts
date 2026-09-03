@@ -43,7 +43,9 @@ export function calculateShippingOptions(
   cep: string,
   uf: string,
   hasMadeToOrder: boolean,
-  maxProductionDays: number
+  maxProductionDays: number,
+  subtotal: number = 0,
+  paymentMethod: 'PIX' | 'CREDIT_CARD' = 'PIX'
 ): ShippingOption[] {
   const isRJ = uf.toUpperCase() === 'RJ'
   const options: ShippingOption[] = []
@@ -52,11 +54,15 @@ export function calculateShippingOptions(
     ? ` (inclui ${maxProductionDays} dias de confecção)` 
     : ''
 
+  const isFreeShipping = 
+    (paymentMethod === 'PIX' && subtotal >= 199) || 
+    (paymentMethod === 'CREDIT_CARD' && subtotal >= 299)
+
   if (isRJ) {
     options.push({
       id: 'MOTOBOY_RJ',
       name: 'Motoboy',
-      price: 22.00,
+      price: isFreeShipping ? 0 : 22.00,
       estimatedDays: 2 + maxProductionDays,
       description: `1 a 2 dias úteis${productionText}`,
     })
@@ -73,7 +79,7 @@ export function calculateShippingOptions(
   options.push({
     id: 'CORREIOS_PAC',
     name: 'PAC',
-    price: isRJ ? 18.90 : 26.90,
+    price: isFreeShipping ? 0 : (isRJ ? 18.90 : 26.90),
     estimatedDays: 8 + maxProductionDays,
     description: `6 a 8 dias úteis${productionText}`,
   })

@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -8,13 +7,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <div className="relative w-36 h-12 mb-4">
-              <Image 
-                src="/logo-use-azevedo.png" 
-                alt="Use Azevedo" 
-                fill 
-                className="object-contain object-left"
-              />
+            <div className="mb-4">
+              <span className="font-serif text-3xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
             </div>
             <p className="text-sm font-light text-[var(--color-brand-ivory)]/60 leading-relaxed mb-6">
               A marca que entende as suas curvas. Moda mid e plus size com modelagem exclusiva, alfaiataria premium e caimento impecável.
@@ -36,7 +30,8 @@ export default function Footer() {
             <h3 className="text-[var(--color-brand-ivory)] font-semibold tracking-[0.1em] uppercase text-[13px] mb-5">Institucional</h3>
             <ul className="space-y-3 text-sm font-light text-[var(--color-brand-ivory)]/60">
               <li><Link href="/sobre" className="hover:text-[var(--color-brand-ivory)] transition-colors">Nossa História</Link></li>
-              <li><Link href="/politica-de-trocas" className="hover:text-[var(--color-brand-ivory)] transition-colors font-medium">Política de Trocas e Devoluções</Link></li>
+              <li><Link href="/duvidas" className="hover:text-[var(--color-brand-ivory)] transition-colors font-medium">Dúvidas Frequentes (FAQ)</Link></li>
+              <li><Link href="/politica-de-trocas" className="hover:text-[var(--color-brand-ivory)] transition-colors">Política de Trocas e Devoluções</Link></li>
               <li><Link href="/prazos" className="hover:text-[var(--color-brand-ivory)] transition-colors">Prazos de Entrega</Link></li>
               <li><Link href="/guia-medidas" className="hover:text-[var(--color-brand-ivory)] transition-colors">Guia de Medidas</Link></li>
             </ul>

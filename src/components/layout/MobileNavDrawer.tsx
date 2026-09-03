@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, MessageCircle, Ruler, ChevronRight, Truck, RefreshCw, Info, Sparkles } from 'lucide-react'
 import { useUIStore } from '@/lib/store/ui'
 import Link from 'next/link'
-import Image from 'next/image'
 
 export default function MobileNavDrawer() {
   const { isMenuOpen, closeMenu, openSizeGuide } = useUIStore()
@@ -50,13 +49,8 @@ export default function MobileNavDrawer() {
           >
             {/* Header com Logo e Fechar */}
             <div className="p-5 border-b border-[var(--color-brand-green-surface)] flex items-center justify-between">
-              <Link href="/" onClick={closeMenu} className="relative w-36 h-10 block">
-                <Image
-                  src="/logo-use-azevedo.png"
-                  alt="Use Azevedo"
-                  fill
-                  className="object-contain object-left"
-                />
+              <Link href="/" onClick={closeMenu} className="block">
+                <span className="font-serif text-2xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
               </Link>
               <button
                 onClick={closeMenu}
@@ -145,6 +139,14 @@ export default function MobileNavDrawer() {
                   >
                     <Truck className="w-4 h-4 text-[var(--color-brand-ivory)]/60" />
                     Rastrear Pedido
+                  </Link>
+                  <Link
+                    href="/duvidas"
+                    onClick={closeMenu}
+                    className="flex items-center gap-2.5 py-2 text-[var(--color-brand-ivory)]/80 hover:text-[var(--color-brand-ivory)] transition-colors"
+                  >
+                    <Info className="w-4 h-4 text-[var(--color-brand-ivory)]/60" />
+                    Dúvidas Frequentes (FAQ)
                   </Link>
                   <Link
                     href="/politica-de-trocas"

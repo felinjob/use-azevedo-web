@@ -45,7 +45,7 @@ const applyCepMask = (v: string) => {
 export default function CheckoutPage() {
   const { items, getSubtotal, hasMadeToOrderItems } = useCartStore()
   const [mounted, setMounted] = useState(false)
-  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
+  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD'>('PIX')
   
   const router = useRouter()
   
@@ -66,12 +66,29 @@ export default function CheckoutPage() {
     return items.reduce((max, item) => Math.max(max, item.productionTimeDays || 0), 0)
   }, [items])
 
+  const state = watch('address.state')
+  const validZip = zipCode && zipCode.replace(/\D/g, '').length === 8
+
+  const shippingOptions = useMemo(() => {
+    if (validZip && state) {
+      return calculateShippingOptions(zipCode, state, hasMadeToOrder, maxProductionDays, subtotal, paymentMethod)
+    }
+    return []
+  }, [validZip, zipCode, state, hasMadeToOrder, maxProductionDays, subtotal, paymentMethod])
+
   const selectedShipping = shippingOptions.find(opt => opt.id === selectedShippingMethod)
   const total = subtotal + (selectedShipping?.price || 0)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Sync shipping price if the selected option changes price (e.g. PIX vs Cartão)
+  useEffect(() => {
+    if (selectedShippingMethod && selectedShipping) {
+      setValue('shipping.price', selectedShipping.price)
+    }
+  }, [selectedShippingMethod, selectedShipping, setValue])
 
   // ViaCEP integration
   useEffect(() => {
@@ -83,18 +100,11 @@ export default function CheckoutPage() {
           setValue('address.neighborhood', address.bairro, { shouldValidate: true })
           setValue('address.city', address.localidade, { shouldValidate: true })
           setValue('address.state', address.uf, { shouldValidate: true })
-          
-          const opts = calculateShippingOptions(address.cep, address.uf, hasMadeToOrder, maxProductionDays)
-          setShippingOptions(opts)
-        } else {
-          setShippingOptions([])
         }
       }
       fetchCep()
-    } else {
-      setShippingOptions([])
     }
-  }, [zipCode, setValue, hasMadeToOrder, maxProductionDays])
+  }, [zipCode, setValue])
 
   const onSubmit = async (data: CheckoutFormData, paymentMethod: 'PIX' | 'CREDIT_CARD') => {
     try {
@@ -402,6 +412,8 @@ export default function CheckoutPage() {
                 isSubmitting={isSubmitting}
                 termsAccepted={termsAccepted}
                 termsError={errors.termsAccepted?.message}
+                method={paymentMethod}
+                setMethod={setPaymentMethod}
                 onSubmit={(method) => handleSubmit((data) => onSubmit(data, method))()}
               />
             </div>
