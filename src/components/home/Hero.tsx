@@ -11,7 +11,7 @@ const SLIDES = [
     id: 1,
     image: 'https://images.unsplash.com/photo-1515347619362-675276537eb0?auto=format&fit=crop&q=80',
     title: 'Nova Coleção Essência',
-    subtitle: 'Moda autoral do 44 ao 56, feita para abraçar as suas curvas.',
+    subtitle: 'Moda autoral do 44 ao 56, feita para abraçar as suas curvas com caimento impecável.',
     cta: 'Ver Lançamentos',
     link: '/?filtro=novidades',
     align: 'center'
@@ -19,20 +19,11 @@ const SLIDES = [
   {
     id: 2,
     image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&q=80',
-    title: 'Vestidos em Linho',
-    subtitle: 'Leveza e sofisticação em peças atemporais.',
+    title: 'Vestidos & Alfaiataria',
+    subtitle: 'Elegância atemporal e tecidos nobres pensados para valorizar cada detalhe.',
     cta: 'Comprar Vestidos',
     link: '/?categoria=vestidos-e-conjuntos',
     align: 'left'
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80',
-    title: 'Feito Sob Medida',
-    subtitle: 'Nossas peças sob encomenda garantem exclusividade e caimento perfeito.',
-    cta: 'Descobrir',
-    link: '/?disponibilidade=MADE_TO_ORDER',
-    align: 'center'
   }
 ]
 

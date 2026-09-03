@@ -29,8 +29,8 @@ export default function MobileStickyCartBar({ product }: MobileStickyCartBarProp
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show sticky bar when scrolled past the main product info (approx 800px)
-      setIsVisible(window.scrollY > 800)
+      // Show sticky bar when scrolled past the main product info
+      setIsVisible(window.scrollY > 450)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -75,7 +75,7 @@ export default function MobileStickyCartBar({ product }: MobileStickyCartBarProp
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="md:hidden fixed bottom-16 left-0 right-0 bg-[var(--color-brand-canvas)] border-t border-[var(--color-brand-muted)]/15 z-20 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] p-3 pb-safe"
+          className="md:hidden fixed bottom-16 left-0 right-0 bg-[var(--color-brand-canvas)] border-t border-[var(--color-brand-muted)]/15 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] p-3 pb-safe"
         >
           <div className="flex items-center gap-3">
             {/* Image */}

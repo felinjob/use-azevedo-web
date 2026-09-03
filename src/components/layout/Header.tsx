@@ -32,13 +32,14 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex flex-col items-center justify-center flex-1 lg:flex-none hover:opacity-90 transition-opacity">
-            <div className="relative w-32 h-10 sm:w-40 sm:h-12">
+            <div className="relative w-36 h-11 sm:w-44 sm:h-13">
               <Image 
                 src="/logo-use-azevedo.png" 
                 alt="Use Azevedo" 
                 fill 
+                priority
                 className="object-contain"
-                sizes="(max-width: 640px) 128px, 160px"
+                sizes="(max-width: 640px) 144px, 176px"
               />
             </div>
           </Link>

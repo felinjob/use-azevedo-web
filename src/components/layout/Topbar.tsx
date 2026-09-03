@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const MESSAGES = [
   "Frete Expresso via Motoboy para o Rio de Janeiro e Região",
-  "Parcele em até 12x na InfinitePay",
+  "Parcele em até 12x no cartão ou pague via Pix",
   "Moda Mid e Plus Size do 44 ao 56+ com Caimento Impecável"
 ]
 

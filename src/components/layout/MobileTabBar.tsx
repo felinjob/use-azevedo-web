@@ -25,7 +25,7 @@ export default function MobileTabBar() {
   const totalItems = getTotalItems()
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-brand-canvas)]/95 backdrop-blur-md border-t border-[var(--color-brand-muted)]/15 z-30 pb-safe">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-brand-canvas)]/95 backdrop-blur-md border-t border-[var(--color-brand-muted)]/15 z-30 pb-safe">
       <div className="flex justify-around items-center h-16">
         <Link 
           href="/" 
@@ -59,7 +59,7 @@ export default function MobileTabBar() {
         </button>
 
         <a 
-          href="https://wa.me/5521978594358" 
+          href="https://wa.me/5521978594358?text=Ol%C3%A1%2C%20gostaria%20de%20atendimento%20sobre%20as%20pe%C3%A7as%20da%20Use%20Azevedo" 
           target="_blank" 
           rel="noreferrer"
           className="flex flex-col items-center justify-center w-full h-full space-y-1 text-[var(--color-brand-muted)] hover:text-[var(--color-brand-green-deep)] transition-colors"
