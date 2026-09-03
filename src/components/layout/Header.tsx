@@ -42,10 +42,9 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center justify-center flex-1 gap-8 text-sm uppercase tracking-wider">
             <Link href="#" className="hover:text-[var(--color-brand-gold-light)] transition-colors">Novidades</Link>
-            <Link href="#" className="hover:text-[var(--color-brand-gold-light)] transition-colors">Pronta Entrega</Link>
+            <Link href="#" className="hover:text-[var(--color-brand-gold-light)] transition-colors">Catálogo</Link>
             <Link href="#" className="hover:text-[var(--color-brand-gold-light)] transition-colors">Sob Encomenda</Link>
-            <Link href="#" className="hover:text-[var(--color-brand-gold-light)] transition-colors">Vestidos</Link>
-            <Link href="#" className="hover:text-[var(--color-brand-gold-light)] transition-colors">Guia de Medidas</Link>
+            <Link href="/rastreio" className="hover:text-[var(--color-brand-gold-light)] transition-colors font-medium text-[var(--color-brand-gold-light)]">Rastrear Pedido</Link>
           </nav>
 
           {/* Actions */}

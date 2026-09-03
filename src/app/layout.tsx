@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import CartDrawer from "@/components/cart/CartDrawer";
+import WhatsAppFloatingButton from "@/components/common/WhatsAppFloatingButton";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         {children}
         <CartDrawer />
+        <WhatsAppFloatingButton />
       </body>
     </html>
   );

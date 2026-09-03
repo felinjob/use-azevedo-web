@@ -28,7 +28,7 @@ export default function Footer() {
             <h3 className="text-[var(--color-brand-gold-light)] font-semibold tracking-wider uppercase text-sm mb-5">Institucional</h3>
             <ul className="space-y-3 text-sm font-light text-gray-300">
               <li><Link href="/sobre" className="hover:text-[var(--color-brand-gold)] transition-colors">Nossa História</Link></li>
-              <li><strong className="text-white"><Link href="/trocas" className="hover:text-[var(--color-brand-gold)] transition-colors">Política de Trocas e Devoluções</Link></strong></li>
+              <li><strong className="text-white"><Link href="/politica-de-trocas" className="hover:text-[var(--color-brand-gold)] transition-colors">Política de Trocas e Devoluções</Link></strong></li>
               <li><Link href="/prazos" className="hover:text-[var(--color-brand-gold)] transition-colors">Prazos de Entrega</Link></li>
               <li><Link href="/guia-medidas" className="hover:text-[var(--color-brand-gold)] transition-colors">Guia de Medidas</Link></li>
             </ul>
