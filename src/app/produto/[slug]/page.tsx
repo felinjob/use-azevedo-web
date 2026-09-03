@@ -6,6 +6,7 @@ import Topbar from '@/components/layout/Topbar'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProductDetailsView from '@/components/products/ProductDetailsView'
+import MobileStickyCartBar from '@/components/products/MobileStickyCartBar'
 import { serializeProduct } from '@/lib/serializers'
 
 interface ProductPageProps {
@@ -68,6 +69,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </main>
 
+      <MobileStickyCartBar product={serializeProduct(product)} />
       <Footer />
     </div>
   )

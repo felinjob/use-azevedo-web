@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAF8F5;
+  --foreground: #14231B;
 }
 
 @theme inline {
@@ -10,20 +10,19 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-brand-green-deep: #003D1E;
-  --color-brand-green-light: #0A5C30;
-  --color-brand-gold: #C5A059;
-  --color-brand-gold-light: #E2C889;
-  --color-brand-offwhite: #FAFAF7;
-  --color-brand-dark: #1A2420;
-  --color-brand-muted: #5C6963;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* ── Use Azevedo Official Palette ── */
+  --color-brand-green-deep: #0B3B24;
+  --color-brand-green-surface: #12452D;
+  --color-brand-ivory: #F4F0E8;
+  --color-brand-canvas: #FAF8F5;
+  --color-brand-dark: #14231B;
+  --color-brand-muted: #63756C;
+
+  /* Legacy aliases kept for backward compat – mapped to new palette */
+  --color-brand-gold: #F4F0E8;
+  --color-brand-gold-light: #F4F0E8;
+  --color-brand-offwhite: #FAF8F5;
 }
 
 body {
@@ -31,3 +30,4 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
