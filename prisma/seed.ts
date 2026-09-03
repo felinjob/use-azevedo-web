@@ -1,4 +1,4 @@
-import { PrismaClient, AvailabilityType } from '@prisma/client'
+import { PrismaClient, AvailabilityType, HighlightType } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -156,6 +156,91 @@ async function main() {
           hipCm: baseHip,
           lengthCm: 110,
         }
+      })
+    }
+  }
+
+  // Banners & Stories (Personalização)
+  console.log('Seeding Banners & Stories...')
+  const initialHighlights = [
+    // Hero Slides
+    {
+      title: 'Nova Coleção Essência',
+      subtitle: 'Moda autoral do 44 ao 56, feita para abraçar as suas curvas com caimento impecável.',
+      imageUrl: 'https://images.unsplash.com/photo-1515347619362-675276537eb0?auto=format&fit=crop&q=80',
+      linkUrl: '/?filtro=novidades',
+      type: HighlightType.HERO_SLIDE,
+      order: 0,
+      active: true,
+    },
+    {
+      title: 'Vestidos & Alfaiataria',
+      subtitle: 'Elegância atemporal e tecidos nobres pensados para valorizar cada detalhe.',
+      imageUrl: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&q=80',
+      linkUrl: '/?categoria=vestidos-e-conjuntos',
+      type: HighlightType.HERO_SLIDE,
+      order: 1,
+      active: true,
+    },
+    // Story Circles
+    {
+      title: 'Novidades',
+      subtitle: null,
+      imageUrl: 'https://images.unsplash.com/photo-1550614000-4b95d4e16dce?w=200&q=80',
+      linkUrl: '/?filtro=novidades',
+      type: HighlightType.STORY_CIRCLE,
+      order: 0,
+      active: true,
+    },
+    {
+      title: 'Vestidos',
+      subtitle: null,
+      imageUrl: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=200&q=80',
+      linkUrl: '/?categoria=vestidos-e-conjuntos',
+      type: HighlightType.STORY_CIRCLE,
+      order: 1,
+      active: true,
+    },
+    {
+      title: 'Conjuntos',
+      subtitle: null,
+      imageUrl: 'https://images.unsplash.com/photo-1594938298596-eb5fd3f6b4f6?w=200&q=80',
+      linkUrl: '/?busca=conjunto',
+      type: HighlightType.STORY_CIRCLE,
+      order: 2,
+      active: true,
+    },
+    {
+      title: 'Blusas',
+      subtitle: null,
+      imageUrl: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=200&q=80',
+      linkUrl: '/?busca=blusa',
+      type: HighlightType.STORY_CIRCLE,
+      order: 3,
+      active: true,
+    },
+    {
+      title: 'Pronta Entrega',
+      subtitle: null,
+      imageUrl: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=200&q=80',
+      linkUrl: '/?disponibilidade=READY_TO_SHIP',
+      type: HighlightType.STORY_CIRCLE,
+      order: 4,
+      active: true,
+    },
+  ]
+
+  for (const item of initialHighlights) {
+    const existing = await prisma.bannerHighlight.findFirst({
+      where: {
+        title: item.title,
+        type: item.type,
+      }
+    })
+
+    if (!existing) {
+      await prisma.bannerHighlight.create({
+        data: item
       })
     }
   }

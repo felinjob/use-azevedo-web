@@ -5,6 +5,7 @@ import { trackOrder } from '@/app/actions/track-order'
 import { Package, Truck, CheckCircle, Search, Clock, MapPin } from 'lucide-react'
 import Topbar from '@/components/layout/Topbar'
 import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 
 const applyCpfMask = (v: string) => {
   v = v.replace(/\D/g, "")
@@ -41,13 +42,13 @@ export default function RastreioPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-brand-offwhite)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-brand-canvas)] font-sans">
       <Topbar />
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 md:px-8 py-12 flex flex-col items-center">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         
-        <div className="w-full max-w-2xl bg-white p-6 md:p-10 border border-gray-200">
+        <div className="w-full bg-white p-6 md:p-10 border border-[var(--color-brand-muted)]/15 rounded-md shadow-xs">
           <h1 className="text-2xl font-serif text-[var(--color-brand-dark)] mb-2 text-center">Rastrear Pedido</h1>
           <p className="text-sm text-gray-500 mb-8 text-center">
             Acompanhe o status e a entrega da sua compra na Use Azevedo.
@@ -226,6 +227,8 @@ export default function RastreioPage() {
 
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }

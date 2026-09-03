@@ -6,29 +6,25 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useCallback, useEffect, useState } from 'react'
 
-const SLIDES = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1515347619362-675276537eb0?auto=format&fit=crop&q=80',
-    title: 'Nova Coleção Essência',
-    subtitle: 'Moda autoral do 44 ao 56, feita para abraçar as suas curvas com caimento impecável.',
-    cta: 'Ver Lançamentos',
-    link: '/?filtro=novidades',
-    align: 'center'
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&q=80',
-    title: 'Vestidos & Alfaiataria',
-    subtitle: 'Elegância atemporal e tecidos nobres pensados para valorizar cada detalhe.',
-    cta: 'Comprar Vestidos',
-    link: '/?categoria=vestidos-e-conjuntos',
-    align: 'left'
-  }
-]
+export interface HeroSlideItem {
+  id: string
+  title: string
+  subtitle?: string | null
+  imageUrl: string
+  linkUrl: string
+}
 
-export default function Hero() {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 6000, stopOnInteraction: false })])
+interface HeroProps {
+  slides?: HeroSlideItem[]
+}
+
+export default function Hero({ slides = [] }: HeroProps) {
+  const hasSlides = Boolean(slides && slides.length > 0)
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: hasSlides && slides.length > 1 },
+    hasSlides && slides.length > 1 ? [Autoplay({ delay: 6000, stopOnInteraction: false })] : []
+  )
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi])
@@ -45,39 +41,45 @@ export default function Hero() {
     emblaApi.on('reInit', onSelect)
   }, [emblaApi, onSelect])
 
+  if (!hasSlides) {
+    return null
+  }
+
   return (
     <section className="relative overflow-hidden bg-gray-100">
       <div className="embla" ref={emblaRef}>
         <div className="embla__container flex">
-          {SLIDES.map((slide) => (
+          {slides.map((slide, idx) => (
             <div className="embla__slide flex-[0_0_100%] min-w-0 relative" key={slide.id}>
               {/* Slide Image */}
-              <div className="relative h-[70vh] sm:h-[80vh] w-full">
+              <div className="relative h-[65vh] sm:h-[75vh] md:h-[80vh] w-full">
                 <Image 
-                  src={slide.image}
+                  src={slide.imageUrl}
                   alt={slide.title}
                   fill
-                  priority={slide.id === 1}
+                  priority={idx === 0}
                   className="object-cover object-[center_30%]"
                   sizes="100vw"
                 />
-                <div className="absolute inset-0 bg-black/30" />
+                <div className="absolute inset-0 bg-black/35" />
                 
                 {/* Content */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`container mx-auto px-6 md:px-12 ${slide.align === 'left' ? 'text-left' : 'text-center'}`}>
-                    <div className={`max-w-2xl ${slide.align === 'center' ? 'mx-auto' : ''}`}>
-                      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-[var(--color-brand-ivory)] mb-4 sm:mb-6 leading-tight">
+                  <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div className="max-w-2xl mx-auto">
+                      <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-[var(--color-brand-ivory)] mb-4 sm:mb-6 leading-tight tracking-tight drop-shadow-sm">
                         {slide.title}
                       </h1>
-                      <p className="text-lg sm:text-xl text-[var(--color-brand-ivory)]/80 mb-8 sm:mb-10 font-light max-w-xl mx-auto md:mx-0">
-                        {slide.subtitle}
-                      </p>
+                      {slide.subtitle && (
+                        <p className="text-base sm:text-lg md:text-xl text-[var(--color-brand-ivory)]/90 mb-8 sm:mb-10 font-light max-w-xl mx-auto drop-shadow-xs">
+                          {slide.subtitle}
+                        </p>
+                      )}
                       <Link 
-                        href={slide.link}
-                        className="inline-block bg-[var(--color-brand-ivory)] text-[var(--color-brand-green-deep)] px-8 py-4 uppercase tracking-[0.2em] text-sm font-bold hover:opacity-90 transition-opacity shadow-lg"
+                        href={slide.linkUrl.startsWith('/?') ? `${slide.linkUrl}#colecao` : slide.linkUrl}
+                        className="inline-block bg-[var(--color-brand-ivory)] text-[var(--color-brand-green-deep)] px-8 py-3.5 sm:py-4 uppercase tracking-[0.2em] text-xs sm:text-sm font-bold hover:opacity-90 transition-all shadow-lg active:scale-98"
                       >
-                        {slide.cta}
+                        Explorar Coleção
                       </Link>
                     </div>
                   </div>
@@ -89,16 +91,18 @@ export default function Hero() {
       </div>
 
       {/* Pagination Dots */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
-        {SLIDES.map((_, index) => (
-          <button
-            key={index}
-            className={`h-1 transition-all duration-300 rounded-full ${index === selectedIndex ? 'w-8 bg-[var(--color-brand-ivory)]' : 'w-4 bg-[var(--color-brand-ivory)]/40 hover:bg-[var(--color-brand-ivory)]/70'}`}
-            onClick={() => scrollTo(index)}
-            aria-label={`Ir para slide ${index + 1}`}
-          />
-        ))}
-      </div>
+      {slides.length > 1 && (
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              className={`h-1 transition-all duration-300 rounded-full ${index === selectedIndex ? 'w-8 bg-[var(--color-brand-ivory)]' : 'w-4 bg-[var(--color-brand-ivory)]/40 hover:bg-[var(--color-brand-ivory)]/70'}`}
+              onClick={() => scrollTo(index)}
+              aria-label={`Ir para slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

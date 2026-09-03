@@ -46,10 +46,10 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center justify-center flex-1 gap-8 text-[13px] uppercase tracking-[0.12em] font-medium">
-            <Link href="/?filtro=novidades" className="opacity-85 hover:opacity-100 transition-opacity">Novidades</Link>
-            <Link href="/?disponibilidade=READY_TO_SHIP" className="opacity-85 hover:opacity-100 transition-opacity">Pronta Entrega</Link>
-            <Link href="/?disponibilidade=MADE_TO_ORDER" className="opacity-85 hover:opacity-100 transition-opacity">Sob Encomenda</Link>
-            <Link href="/?categoria=vestidos-e-conjuntos" className="opacity-85 hover:opacity-100 transition-opacity">Vestidos</Link>
+            <Link href="/?filtro=novidades#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Novidades</Link>
+            <Link href="/?disponibilidade=READY_TO_SHIP#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Pronta Entrega</Link>
+            <Link href="/?disponibilidade=MADE_TO_ORDER#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Sob Encomenda</Link>
+            <Link href="/?categoria=vestidos-e-conjuntos#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Vestidos</Link>
             <button onClick={openSizeGuide} className="opacity-85 hover:opacity-100 transition-opacity uppercase tracking-[0.12em]">Guia de Medidas</button>
           </nav>
 

@@ -3,65 +3,55 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-const STORIES = [
-  { 
-    label: 'Novidades', 
-    image: 'https://images.unsplash.com/photo-1550614000-4b95d4e16dce?w=200&q=80', 
-    query: '/?filtro=novidades' 
-  },
-  { 
-    label: 'Vestidos', 
-    image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=200&q=80', 
-    query: '/?categoria=vestidos-e-conjuntos' 
-  },
-  { 
-    label: 'Conjuntos', 
-    image: 'https://images.unsplash.com/photo-1594938298596-eb5fd3f6b4f6?w=200&q=80', 
-    query: '/?busca=conjunto' 
-  },
-  { 
-    label: 'Blusas', 
-    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=200&q=80', 
-    query: '/?busca=blusa' 
-  },
-  { 
-    label: 'Pronta Entrega', 
-    image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=200&q=80', 
-    query: '/?disponibilidade=READY_TO_SHIP' 
-  },
-]
+export interface StoryCircleItem {
+  id: string
+  title: string
+  imageUrl: string
+  linkUrl: string
+}
 
-export default function CategoryStories() {
+interface CategoryStoriesProps {
+  stories?: StoryCircleItem[]
+}
+
+export default function CategoryStories({ stories = [] }: CategoryStoriesProps) {
+  if (!stories || stories.length === 0) {
+    return null
+  }
+
   return (
     <section className="bg-[var(--color-brand-canvas)] pt-6 pb-2 border-b border-[var(--color-brand-muted)]/15">
-      <div className="container mx-auto px-4">
-        {/* Hide scrollbar for a clean look but allow touch scrolling */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile: scroll horizontal | Desktop (md+): centralizado simétrico com flex-wrap */}
         <div 
-          className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 snap-x" 
+          className="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 overflow-x-auto md:overflow-visible pb-4 md:pb-2 snap-x scrollbar-none justify-start md:justify-center md:flex-wrap" 
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {STORIES.map((story) => (
-            <Link 
-              key={story.label} 
-              href={story.query}
-              className="flex flex-col items-center gap-2 min-w-[74px] sm:min-w-[88px] snap-start group"
-            >
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full p-[2px] bg-[var(--color-brand-green-deep)] ring-2 ring-[var(--color-brand-ivory)] shadow-sm group-hover:scale-105 transition-transform duration-300">
-                <div className="w-full h-full rounded-full border-2 border-white overflow-hidden relative">
-                  <Image 
-                    src={story.image}
-                    alt={story.label}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
+          {stories.map((story) => {
+            const targetUrl = story.linkUrl.startsWith('/?') ? `${story.linkUrl}#colecao` : story.linkUrl
+            return (
+              <Link 
+                key={story.id} 
+                href={targetUrl}
+                className="flex flex-col items-center gap-2 min-w-[74px] sm:min-w-[84px] md:min-w-[96px] snap-start group cursor-pointer"
+              >
+                <div className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full p-[2px] bg-[var(--color-brand-green-deep)] ring-2 ring-[var(--color-brand-ivory)] shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300">
+                  <div className="w-full h-full rounded-full border-2 border-white overflow-hidden relative">
+                    <Image 
+                      src={story.imageUrl}
+                      alt={story.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      sizes="80px"
+                    />
+                  </div>
                 </div>
-              </div>
-              <span className="text-[11px] sm:text-xs font-medium text-[var(--color-brand-dark)] text-center leading-tight group-hover:text-[var(--color-brand-green-deep)] transition-colors">
-                {story.label}
-              </span>
-            </Link>
-          ))}
+                <span className="text-[11px] sm:text-xs font-medium text-[var(--color-brand-dark)] text-center leading-tight group-hover:text-[var(--color-brand-green-deep)] transition-colors">
+                  {story.title}
+                </span>
+              </Link>
+            )
+          })}
         </div>
       </div>
     </section>

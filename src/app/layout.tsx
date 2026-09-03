@@ -6,6 +6,7 @@ import WhatsAppFloatingButton from "@/components/common/WhatsAppFloatingButton";
 import SearchModal from "@/components/layout/SearchModal";
 import MobileTabBar from "@/components/layout/MobileTabBar";
 import GlobalSizeGuideModal from "@/components/common/GlobalSizeGuideModal";
+import MobileNavDrawer from "@/components/layout/MobileNavDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <CartDrawer />
         <SearchModal />
+        <MobileNavDrawer />
         <GlobalSizeGuideModal />
         <WhatsAppFloatingButton />
         <MobileTabBar />

@@ -183,3 +183,21 @@ model Payment {
 
   @@index([gatewayTransactionId])
 }
+
+enum HighlightType {
+  HERO_SLIDE
+  STORY_CIRCLE
+}
+
+model BannerHighlight {
+  id          String        @id @default(cuid())
+  title       String
+  subtitle    String?
+  imageUrl    String
+  linkUrl     String
+  type        HighlightType
+  order       Int           @default(0)
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
