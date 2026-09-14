@@ -30,19 +30,21 @@ export default function Header() {
           </div>
 
           {/* Logo */}
-          <Link href="/" className="flex flex-col items-center justify-center flex-1 lg:flex-none hover:opacity-90 transition-opacity">
-            <div className="flex flex-col items-center justify-center leading-none">
-              <span className="font-serif text-2xl sm:text-3xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
-            </div>
-          </Link>
+          <div className="flex flex-1 items-center justify-center lg:justify-start">
+            <Link href="/" className="flex flex-col items-center justify-center hover:opacity-90 transition-opacity">
+              <div className="flex flex-col items-center justify-center leading-none">
+                <span className="font-serif text-2xl sm:text-3xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
+              </div>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center justify-center flex-1 gap-8 text-[13px] uppercase tracking-[0.12em] font-medium">
-            <Link href="/?filtro=novidades#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Novidades</Link>
-            <Link href="/?disponibilidade=READY_TO_SHIP#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Pronta Entrega</Link>
-            <Link href="/?disponibilidade=MADE_TO_ORDER#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Sob Encomenda</Link>
-            <Link href="/?categoria=vestidos-e-conjuntos#colecao" className="opacity-85 hover:opacity-100 transition-opacity">Vestidos</Link>
-            <button onClick={openSizeGuide} className="opacity-85 hover:opacity-100 transition-opacity uppercase tracking-[0.12em]">Guia de Medidas</button>
+          <nav className="hidden lg:flex items-center justify-center flex-[2] gap-8 text-[13px] uppercase tracking-[0.12em] font-medium">
+            <Link href="/?filtro=novidades#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Novidades</Link>
+            <Link href="/?disponibilidade=READY_TO_SHIP#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Pronta Entrega</Link>
+            <Link href="/?disponibilidade=MADE_TO_ORDER#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Sob Encomenda</Link>
+            <Link href="/?categoria=vestidos-e-conjuntos#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Vestidos</Link>
+            <button onClick={openSizeGuide} className="relative py-1 opacity-85 hover:opacity-100 transition-opacity uppercase tracking-[0.12em] after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Guia de Medidas</button>
           </nav>
 
           {/* Actions */}
