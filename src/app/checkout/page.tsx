@@ -106,12 +106,14 @@ export default function CheckoutPage() {
     }
   }, [zipCode, setValue])
 
-  const onSubmit = async (data: CheckoutFormData, paymentMethod: 'PIX' | 'CREDIT_CARD') => {
+  const onSubmit = async (data: CheckoutFormData, paymentMethod: 'PIX' | 'CREDIT_CARD', cardData?: any, installments?: number) => {
     try {
       const res = await createOrder({
         formData: data,
         cartItems: items,
-        paymentMethod
+        paymentMethod,
+        cardData,
+        installments
       })
 
       if (res.success && res.orderId) {
@@ -414,7 +416,7 @@ export default function CheckoutPage() {
                 termsError={errors.termsAccepted?.message}
                 method={paymentMethod}
                 setMethod={setPaymentMethod}
-                onSubmit={(method) => handleSubmit((data) => onSubmit(data, method))()}
+                onSubmit={(method, cardData, installments) => handleSubmit((data) => onSubmit(data, method, cardData, installments))()}
               />
             </div>
           </div>

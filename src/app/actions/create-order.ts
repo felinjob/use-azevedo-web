@@ -10,7 +10,11 @@ interface CreateOrderInput {
   formData: CheckoutFormData
   cartItems: CartItem[]
   paymentMethod: 'PIX' | 'CREDIT_CARD'
+  cardData?: any
+  installments?: number
 }
+
+import { infinitepay } from '@/lib/infinitepay'
 
 import crypto from 'crypto'
 
@@ -19,7 +23,7 @@ function generateOrderNumber() {
   return `UA-${randomStr}`
 }
 
-export async function createOrder({ formData, cartItems, paymentMethod }: CreateOrderInput) {
+export async function createOrder({ formData, cartItems, paymentMethod, cardData, installments }: CreateOrderInput) {
   try {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
     const shippingCost = formData.shipping.price
@@ -123,19 +127,73 @@ export async function createOrder({ formData, cartItems, paymentMethod }: Create
         })
       }
 
-      // 5. Create Payment
+      // 5. Create Payment with InfinitePay
       const isPix = paymentMethod === 'PIX'
-      const pixExpiresAt = isPix ? new Date(Date.now() + 20 * 60 * 1000) : null
+      let paymentData: any = null
+      let ipResponse: any = null
+
+      const ipCustomer = {
+        firstName: customer.name.split(' ')[0],
+        lastName: customer.name.split(' ').slice(1).join(' ') || 'Sobrenome',
+        documentNumber: customer.cpf,
+        email: customer.email,
+        phoneNumber: customer.phone,
+        address: {
+          street: address.street,
+          number: address.number,
+          neighborhood: address.neighborhood,
+          city: address.city,
+          state: address.state,
+          zip: address.zipCode
+        }
+      }
+
+      const amountInCents = Math.round(total * 100)
+
+      if (isPix) {
+        ipResponse = await infinitepay.createPixPayment({
+          orderId: order.orderNumber,
+          amountInCents,
+          customer: ipCustomer
+        })
+        
+        paymentData = {
+          orderId: order.id,
+          method: PaymentMethod.PIX,
+          pixCopiaECola: ipResponse.pixCopiaECola || ipResponse.brcode,
+          pixQrCode: ipResponse.qrCodeImage,
+          pixExpiresAt: ipResponse.expiresAt ? new Date(ipResponse.expiresAt) : new Date(Date.now() + 20 * 60 * 1000)
+        }
+      } else {
+        if (!cardData) throw new Error('Dados do cartão ausentes')
+        
+        ipResponse = await infinitepay.createCardPayment({
+          orderId: order.orderNumber,
+          amountInCents,
+          customer: ipCustomer,
+          installments: installments || 1,
+          card: cardData
+        })
+
+        paymentData = {
+          orderId: order.id,
+          method: PaymentMethod.CREDIT_CARD,
+          // You could store the transactionId returned by IP in a new field if needed
+          // For now, since the payment was approved synchronously, we could update the order status
+        }
+      }
       
       const payment = await tx.payment.create({
-        data: {
-          orderId: order.id,
-          method: isPix ? PaymentMethod.PIX : PaymentMethod.CREDIT_CARD,
-          pixCopiaECola: isPix ? `00020126580014br.gov.bcb.pix0136${customer.cpf}5204000053039865802BR5925Use Azevedo6009SAO PAULO62140510${orderNumber}6304` : null, // Mocked Payload
-          pixQrCode: isPix ? `mock_base64_qr_code` : null, // Mocked representation
-          pixExpiresAt
-        }
+        data: paymentData
       })
+      
+      // If credit card was instantly approved
+      if (!isPix && ipResponse.status === 'approved') {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { status: 'PAID' }
+        })
+      }
 
       return { order, payment }
     })

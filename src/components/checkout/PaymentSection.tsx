@@ -10,7 +10,7 @@ interface PaymentSectionProps {
   termsError?: string
   method: 'PIX' | 'CREDIT_CARD'
   setMethod: (method: 'PIX' | 'CREDIT_CARD') => void
-  onSubmit: (method: 'PIX' | 'CREDIT_CARD') => void
+  onSubmit: (method: 'PIX' | 'CREDIT_CARD', cardData?: any, installments?: number) => void
 }
 
 const applyCardMask = (v: string) => {
@@ -38,7 +38,18 @@ export default function PaymentSection({ total, isSubmitting, termsAccepted, ter
   const [installments, setInstallments] = useState(1)
 
   const handlePlaceOrder = () => {
-    onSubmit(method)
+    if (method === 'CREDIT_CARD') {
+      const [month, year] = cardExpiry.split('/')
+      onSubmit('CREDIT_CARD', {
+        number: cardNumber.replace(/\D/g, ''),
+        cardholderName: cardName,
+        expirationMonth: month,
+        expirationYear: year ? `20${year}` : '',
+        cvv: cardCvv
+      }, installments)
+    } else {
+      onSubmit('PIX')
+    }
   }
 
   return (
