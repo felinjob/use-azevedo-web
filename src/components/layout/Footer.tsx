@@ -53,7 +53,13 @@ export default function Footer() {
 
         <div className="border-t border-[var(--color-brand-green-surface)] pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--color-brand-ivory)]/40">
           <p>© {new Date().getFullYear()} Use Azevedo. Todos os direitos reservados.</p>
-          <p className="mt-2 md:mt-0">CNPJ: 00.000.000/0001-00</p>
+          <div className="mt-2 md:mt-0 flex flex-col md:flex-row items-center gap-4">
+            <p>CNPJ: 00.000.000/0001-00</p>
+            <p className="hidden md:block text-[var(--color-brand-ivory)]/20">•</p>
+            <p>
+              Desenvolvido por <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-brand-ivory)] transition-colors font-medium">darkmode.id</a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
