@@ -114,8 +114,8 @@ export default function CheckoutPage() {
         paymentMethod
       })
 
-      if (res.success && res.orderNumber) {
-        router.push(`/pedido/${res.orderNumber}`)
+      if (res.success && res.orderId) {
+        router.push(`/pedido/${res.orderId}`)
       } else {
         alert(res.error || 'Erro ao processar pedido')
       }

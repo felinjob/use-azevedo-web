@@ -12,10 +12,11 @@ interface CreateOrderInput {
   paymentMethod: 'PIX' | 'CREDIT_CARD'
 }
 
+import crypto from 'crypto'
+
 function generateOrderNumber() {
-  const timestamp = Date.now().toString().slice(-6)
-  const random = Math.floor(1000 + Math.random() * 9000).toString()
-  return `UA-${timestamp}${random}`
+  const randomStr = crypto.randomBytes(4).toString('hex').toUpperCase()
+  return `UA-${randomStr}`
 }
 
 export async function createOrder({ formData, cartItems, paymentMethod }: CreateOrderInput) {
@@ -139,7 +140,7 @@ export async function createOrder({ formData, cartItems, paymentMethod }: Create
       return { order, payment }
     })
 
-    return { success: true, orderNumber: result.order.orderNumber }
+    return { success: true, orderNumber: result.order.orderNumber, orderId: result.order.id }
 
   } catch (error) {
     console.error('Error creating order:', error)

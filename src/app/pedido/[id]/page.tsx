@@ -10,14 +10,14 @@ import PixPaymentDetails from '@/components/checkout/PixPaymentDetails'
 const prisma = new PrismaClient()
 
 interface OrderSuccessPageProps {
-  params: Promise<{ orderNumber: string }>
+  params: Promise<{ id: string }>
 }
 
 export default async function OrderSuccessPage({ params }: OrderSuccessPageProps) {
-  const { orderNumber } = await params
+  const { id } = await params
 
   const order = await prisma.order.findUnique({
-    where: { orderNumber },
+    where: { id },
     include: {
       customer: true,
       shippingAddress: true,
