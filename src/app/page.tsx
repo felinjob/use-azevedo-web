@@ -83,6 +83,10 @@ export default async function Home({ searchParams }: HomePageProps) {
     }) : Promise.resolve([]),
   ])
 
+  // Fix: Next.js cannot pass Prisma Decimal objects to Client Components. Serialize them to primitive types.
+  const serializedProducts = JSON.parse(JSON.stringify(products))
+  const serializedFeaturedProducts = JSON.parse(JSON.stringify(featuredProducts))
+
   const heroSlides = highlights.filter((h) => h.type === 'HERO_SLIDE')
   const storyCircles = highlights.filter((h) => h.type === 'STORY_CIRCLE')
 
@@ -141,7 +145,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               </h1>
               <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
                 <span className="text-xs text-[var(--color-brand-ivory)]/75">
-                  {products.length} {products.length === 1 ? 'peça encontrada' : 'peças encontradas'}
+                  {serializedProducts.length} {serializedProducts.length === 1 ? 'peça encontrada' : 'peças encontradas'}
                 </span>
                 <span className="text-[var(--color-brand-ivory)]/40">•</span>
                 <Link
@@ -217,10 +221,10 @@ export default async function Home({ searchParams }: HomePageProps) {
             </div>
 
             {/* Grid de Produtos Editorial */}
-            {products.length > 0 ? (
+            {serializedProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
-                  {products.map((product) => (
+                  {serializedProducts.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
@@ -256,7 +260,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         </section>
 
         {/* Seção Destaques / Mais Vendidos (Visível apenas se não houver filtros) */}
-        {!isFiltered && featuredProducts.length > 0 && (
+        {!isFiltered && serializedFeaturedProducts.length > 0 && (
           <section className="py-12 sm:py-16 bg-[var(--color-brand-offwhite)] border-t border-[var(--color-brand-muted)]/10">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col items-center mb-8 sm:mb-12">
@@ -270,7 +274,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               </div>
 
               <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
-                {featuredProducts.map((product) => (
+                {serializedFeaturedProducts.map((product: any) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
