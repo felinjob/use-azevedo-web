@@ -24,22 +24,28 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('bucket', 'products')
 
-      const { data, error } = await supabase.storage
-        .from('products')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
         })
+        const data = await res.json()
 
-      if (error) {
+        if (!res.ok) {
+          throw new Error(data.error || 'Erro ao fazer upload da imagem.')
+        }
+        
+        if (data.url) {
+          newUrls.push(data.url)
+        }
+      } catch (error) {
         console.error('Error uploading image:', error)
         alert('Erro ao fazer upload da imagem.')
-      } else if (data) {
-        const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(data.path)
-        newUrls.push(publicUrl)
       }
     }
 

@@ -86,23 +86,22 @@ export default function HighlightModal({
     setErrorMessage('')
 
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `highlights/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('bucket', 'banners')
 
-      const { data, error } = await supabase.storage
-        .from('products')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        })
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
 
-      if (error) {
-        throw error
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao fazer upload da imagem.')
       }
 
-      if (data) {
-        const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(data.path)
-        setImageUrl(publicUrl)
+      if (data.url) {
+        setImageUrl(data.url)
       }
     } catch (err: any) {
       console.error('Upload error:', err)
