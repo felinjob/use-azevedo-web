@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Use Azevedo - Loja Virtual
 
-## Getting Started
+Bem-vindo ao repositório do e-commerce da **Use Azevedo**, uma marca focada em estilo, qualidade e elegância (Quiet Luxury). 
 
-First, run the development server:
+Este projeto foi desenvolvido com as mais modernas tecnologias web para oferecer uma experiência de compra ágil, segura e lindamente orquestrada para todos os tamanhos de tela.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tecnologias Principais
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
+- **Linguagem:** TypeScript
+- **Estilização:** Tailwind CSS + Framer Motion (para micro-interações)
+- **Banco de Dados:** PostgreSQL (gerenciado via [Prisma ORM v6](https://www.prisma.io/))
+- **Gateway de Pagamento:** Integração robusta via Webhooks com a [InfinitePay](https://infinitepay.io/)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Destaques da Plataforma
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Catálogo Dinâmico:** Gestão de grade complexa (Multi-cor x Tamanho x Estoque).
+- **Provador Virtual:** Experiência dedicada de usabilidade com modais interativos para tabelas de medidas globais e específicas.
+- **Cupons de Desconto:** Motor avançado para aplicação de cupons percentuais ou de valor fixo atrelados ao carrinho.
+- **Real-Time Order Tracking:** Painel de rastreio para os clientes atualizado em tempo real na confirmação do pagamento.
+- **Gestão Administrativa (Admin):** Módulos completos para criação de peças, gerenciamento de estoque, cadastro de banners/hero dinâmicos e controle de aprovação de pedidos com possibilidade de baixa manual.
+- **Design System:** Paleta "Verde Floresta e Canvas/Marfim" e adoção de fontes premium.
 
-## Learn More
+## Como Executar Localmente
 
-To learn more about Next.js, take a look at the following resources:
+Certifique-se de que o Node.js e o PostgreSQL estão instalados em seu ambiente.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/felinjob/use-azevedo-web.git
+   cd use-azevedo-web
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+3. **Configure as variáveis de ambiente:**
+   Copie o arquivo `.env.example` (se disponível) para `.env` e ajuste suas credenciais (banco de dados, Stripe/InfinitePay, senhas de admin).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Prepare o banco de dados:**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+A aplicação estará acessível em [http://localhost:3000](http://localhost:3000).
+
+## Licença
+
+Projeto desenvolvido sob encomenda para uso exclusivo da marca Use Azevedo. Todos os direitos de design, logotipos e conteúdo são reservados.
