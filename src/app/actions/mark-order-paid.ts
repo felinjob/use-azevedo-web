@@ -2,10 +2,18 @@
 
 import { PrismaClient } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 
 const prisma = new PrismaClient()
 
 export async function markOrderAsPaid(orderNumber: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     const order = await prisma.order.findUnique({
       where: { orderNumber },
@@ -64,3 +72,4 @@ export async function markOrderAsPaid(orderNumber: string) {
     return { success: false, error: 'Erro ao marcar pedido como pago.' }
   }
 }
+

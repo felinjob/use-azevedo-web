@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 
 export async function createCoupon(data: {
   code: string
@@ -11,6 +12,13 @@ export async function createCoupon(data: {
   maxUses?: number
   expiresAt?: Date
 }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     const coupon = await prisma.coupon.create({
       data: {
@@ -36,6 +44,13 @@ export async function createCoupon(data: {
 }
 
 export async function toggleCouponStatus(id: string, isActive: boolean) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     await prisma.coupon.update({
       where: { id },
@@ -52,6 +67,13 @@ export async function toggleCouponStatus(id: string, isActive: boolean) {
 }
 
 export async function deleteCoupon(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     await prisma.coupon.delete({
       where: { id }
@@ -65,3 +87,4 @@ export async function deleteCoupon(id: string) {
     return { success: false, error: error.message || 'Erro ao excluir cupom.' }
   }
 }
+

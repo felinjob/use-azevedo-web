@@ -3,10 +3,18 @@
 import { PrismaClient } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import type { ProductFormState } from '@/components/admin/ProductForm'
+import { createClient } from '@/lib/supabase/server'
 
 const prisma = new PrismaClient()
 
 export async function createProduct(data: ProductFormState) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     const product = await prisma.$transaction(async (tx) => {
       // Garantir SKU único se estiver em branco
@@ -74,6 +82,13 @@ export async function createProduct(data: ProductFormState) {
 }
 
 export async function updateProduct(id: string, data: ProductFormState) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     await prisma.$transaction(async (tx) => {
       // 1. Update master product details
@@ -159,6 +174,13 @@ export async function updateProduct(id: string, data: ProductFormState) {
 }
 
 export async function toggleProductActive(id: string, currentStatus: boolean) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     await prisma.product.update({
       where: { id },
@@ -172,3 +194,4 @@ export async function toggleProductActive(id: string, currentStatus: boolean) {
     return { success: false, error: 'Erro ao alterar o status do produto.' }
   }
 }
+

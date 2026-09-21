@@ -2,6 +2,7 @@
 
 import { PrismaClient, OrderStatus } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 
 const prisma = new PrismaClient()
 
@@ -13,6 +14,13 @@ interface UpdateOrderStatusInput {
 }
 
 export async function updateOrderStatus({ orderId, status, trackingCode, motoboyNotes }: UpdateOrderStatusInput) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized: Acesso restrito a administradores.' }
+  }
+
   try {
     await prisma.order.update({
       where: { id: orderId },
@@ -30,3 +38,4 @@ export async function updateOrderStatus({ orderId, status, trackingCode, motoboy
     return { success: false, error: 'Erro ao atualizar o status do pedido.' }
   }
 }
+

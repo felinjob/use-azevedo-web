@@ -1,17 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { PaymentMethod } from '@prisma/client';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // 1. Obter o payload cru (raw) como texto para garantir a precisão da assinatura HMAC
+    const rawBody = await req.text();
     
-    // Na InfinitePay, os eventos geralmente vêm com um tipo e metadados
-    // Exemplo: { event: 'payment.approved', data: { metadata: { orderId: ... }, amount: ..., paid_amount: ..., receipt_url: ... } }
-    // A integração pedida indicou um webhook recebido no payload direto com:
-    // invoice_slug, amount, paid_amount, installments, capture_method, transaction_nsu, order_nsu, receipt_url
+    // 2. Extrair o header de assinatura enviado pela InfinitePay
+    // Tentamos algumas chaves comuns, priorizando 'x-infinitepay-signature'
+    const signatureHeader = req.headers.get('x-infinitepay-signature') || req.headers.get('x-signature');
+    const secret = process.env.INFINITEPAY_WEBHOOK_SECRET;
 
-    // Vamos suportar o formato pedido explicitamente:
+    if (!secret) {
+      console.error('Webhook Error: INFINITEPAY_WEBHOOK_SECRET não configurado.');
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+
+    if (!signatureHeader) {
+      console.warn('Webhook Error: Header de assinatura ausente.');
+      return NextResponse.json({ error: 'Unauthorized: Missing signature' }, { status: 401 });
+    }
+
+    // 3. Gerar o HMAC SHA-256 do rawBody usando o secret
+    const hmac = crypto.createHmac('sha256', secret);
+    const digest = hmac.update(rawBody).digest('hex');
+
+    // 4. Prevenir Timing Attacks comparando os buffers de forma segura
+    const signatureBuffer = Buffer.from(signatureHeader, 'utf8');
+    const digestBuffer = Buffer.from(digest, 'utf8');
+
+    if (signatureBuffer.length !== digestBuffer.length || !crypto.timingSafeEqual(signatureBuffer, digestBuffer)) {
+      console.warn('Webhook Error: Assinatura inválida (Spoofing detectado).');
+      return NextResponse.json({ error: 'Unauthorized: Invalid signature' }, { status: 401 });
+    }
+
+    // 5. Assinatura validada com sucesso, agora podemos parsear o body
+    const body = JSON.parse(rawBody);
+    
     const { 
       order_nsu, 
       transaction_nsu, 
@@ -77,3 +104,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
