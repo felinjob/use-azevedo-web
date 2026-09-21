@@ -3,31 +3,42 @@
 import { PrismaClient, PaymentMethod, ShippingType } from '@prisma/client'
 import { CheckoutFormData } from '@/lib/validations/checkout'
 import { CartItem } from '@/lib/store/cart'
+import { validateCoupon } from '@/app/actions/validate-coupon'
+import crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
 interface CreateOrderInput {
   formData: CheckoutFormData
   cartItems: CartItem[]
-  paymentMethod: 'PIX' | 'CREDIT_CARD'
-  cardData?: any
-  installments?: number
+  couponCode?: string
 }
-
-import { infinitepay } from '@/lib/infinitepay'
-
-import crypto from 'crypto'
 
 function generateOrderNumber() {
   const randomStr = crypto.randomBytes(4).toString('hex').toUpperCase()
   return `UA-${randomStr}`
 }
 
-export async function createOrder({ formData, cartItems, paymentMethod, cardData, installments }: CreateOrderInput) {
+export async function createOrder({ formData, cartItems, couponCode }: CreateOrderInput) {
   try {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+    
+    // Server-side coupon validation
+    let discount = 0
+    let validatedCoupon: { id: string, code: string, amount: number } | null = null
+    
+    if (couponCode) {
+      const couponRes = await validateCoupon(couponCode, subtotal)
+      if (couponRes.valid) {
+        discount = couponRes.discountAmount!
+        validatedCoupon = { id: couponRes.id!, code: couponRes.code!, amount: couponRes.discountAmount! }
+      } else {
+        return { success: false, error: couponRes.error }
+      }
+    }
+
     const shippingCost = formData.shipping.price
-    const total = subtotal + shippingCost
+    const total = Math.max(0, subtotal + shippingCost - discount)
     
     // Map shipping method to enum
     let shippingType: ShippingType = 'CORREIOS'
@@ -45,6 +56,8 @@ export async function createOrder({ formData, cartItems, paymentMethod, cardData
         where: { cpf: cleanCpf }
       })
 
+      const cleanPhone = formData.customer.phone.replace(/\D/g, '')
+
       if (!customer) {
         // Fallback check by email
         customer = await tx.customer.findUnique({
@@ -55,7 +68,7 @@ export async function createOrder({ formData, cartItems, paymentMethod, cardData
           // Update missing CPF if found by email
           customer = await tx.customer.update({
             where: { email: customer.email },
-            data: { cpf: cleanCpf, name: formData.customer.name, phone: formData.customer.phone }
+            data: { cpf: cleanCpf, name: formData.customer.name, phone: cleanPhone }
           })
         } else {
           // Create new customer
@@ -64,7 +77,7 @@ export async function createOrder({ formData, cartItems, paymentMethod, cardData
               cpf: cleanCpf,
               name: formData.customer.name,
               email: formData.customer.email,
-              phone: formData.customer.phone
+              phone: cleanPhone
             }
           })
         }
@@ -72,7 +85,7 @@ export async function createOrder({ formData, cartItems, paymentMethod, cardData
         // Update details if found by CPF
         customer = await tx.customer.update({
           where: { cpf: cleanCpf },
-          data: { name: formData.customer.name, email: formData.customer.email, phone: formData.customer.phone }
+          data: { name: formData.customer.name, email: formData.customer.email, phone: cleanPhone }
         })
       }
 
@@ -103,12 +116,22 @@ export async function createOrder({ formData, cartItems, paymentMethod, cardData
           shippingAddressId: address.id,
           subtotal,
           shippingCost,
+          discount,
           total,
+          couponId: validatedCoupon?.id,
           shippingType,
           motoboyNotes: formData.shipping.motoboyNotes || null,
           estimatedDeliveryDate,
         }
       })
+
+      // 3.5 Update Coupon Usage
+      if (validatedCoupon?.id) {
+        await tx.coupon.update({
+          where: { id: validatedCoupon.id },
+          data: { usageCount: { increment: 1 } }
+        })
+      }
 
       // 4. Create Order Items
       for (const item of cartItems) {
@@ -127,78 +150,86 @@ export async function createOrder({ formData, cartItems, paymentMethod, cardData
         })
       }
 
-      // 5. Create Payment with InfinitePay
-      const isPix = paymentMethod === 'PIX'
-      let paymentData: any = null
-      let ipResponse: any = null
+      // 5. Build items for InfinitePay
+      const ipItems = cartItems.map(item => ({
+        description: `${item.name} - Tam ${item.size}`,
+        price: Math.round(Number(item.price) * 100),
+        quantity: item.quantity
+      }))
 
-      const ipCustomer = {
-        firstName: customer.name.split(' ')[0],
-        lastName: customer.name.split(' ').slice(1).join(' ') || 'Sobrenome',
-        documentNumber: customer.cpf,
-        email: customer.email,
-        phoneNumber: customer.phone,
-        address: {
-          street: address.street,
-          number: address.number,
-          neighborhood: address.neighborhood,
-          city: address.city,
-          state: address.state,
-          zip: address.zipCode
+      if (shippingCost > 0) {
+        ipItems.push({
+          description: `Frete (${shippingType || 'Entrega'})`,
+          price: Math.round(Number(shippingCost) * 100),
+          quantity: 1
+        })
+      }
+
+      if (discount > 0) {
+        // Enviar desconto como um item negativo para a InfinitePay
+        ipItems.push({
+          description: `Desconto (Cupom: ${validatedCoupon?.code})`,
+          price: -Math.round(Number(discount) * 100),
+          quantity: 1
+        })
+      }
+
+      const formattedPhone = cleanPhone.startsWith('55') ? `+${cleanPhone}` : `+55${cleanPhone}`
+
+      // 6. Create InfinitePay Checkout Link
+      const payload = {
+        handle: process.env.INFINITEPAY_HANDLE,
+        order_nsu: orderNumber,
+        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/pedido/${orderNumber}`,
+        webhook_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/infinitepay`,
+        items: ipItems,
+        customer: {
+          name: formData.customer.name,
+          email: formData.customer.email,
+          phone_number: formattedPhone
         }
       }
 
-      const amountInCents = Math.round(total * 100)
-
-      if (isPix) {
-        ipResponse = await infinitepay.createPixPayment({
-          orderId: order.orderNumber,
-          amountInCents,
-          customer: ipCustomer
-        })
-        
-        paymentData = {
-          orderId: order.id,
-          method: PaymentMethod.PIX,
-          pixCopiaECola: ipResponse.pixCopiaECola || ipResponse.brcode,
-          pixQrCode: ipResponse.qrCodeImage,
-          pixExpiresAt: ipResponse.expiresAt ? new Date(ipResponse.expiresAt) : new Date(Date.now() + 20 * 60 * 1000)
-        }
-      } else {
-        if (!cardData) throw new Error('Dados do cartão ausentes')
-        
-        ipResponse = await infinitepay.createCardPayment({
-          orderId: order.orderNumber,
-          amountInCents,
-          customer: ipCustomer,
-          installments: installments || 1,
-          card: cardData
-        })
-
-        paymentData = {
-          orderId: order.id,
-          method: PaymentMethod.CREDIT_CARD,
-          // You could store the transactionId returned by IP in a new field if needed
-          // For now, since the payment was approved synchronously, we could update the order status
-        }
-      }
-      
-      const payment = await tx.payment.create({
-        data: paymentData
+      const ipResponse = await fetch(`${process.env.INFINITEPAY_API_URL}/links`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       })
-      
-      // If credit card was instantly approved
-      if (!isPix && ipResponse.status === 'approved') {
-        await tx.order.update({
-          where: { id: order.id },
-          data: { status: 'PAID' }
-        })
+
+      if (!ipResponse.ok) {
+        const errorText = await ipResponse.text().catch(() => 'Unknown Error')
+        console.error('[INFINITEPAY ERROR]:', ipResponse.status, errorText)
+        throw new Error('Falha ao gerar link de pagamento')
       }
 
-      return { order, payment }
+      const data = await ipResponse.json()
+      
+      if (!data.url) {
+        console.error('[INFINITEPAY ERROR]: Nenhum URL de redirecionamento retornado', data)
+        throw new Error('Falha ao gerar link de pagamento: resposta inválida')
+      }
+
+      // 7. Create Payment record in Prisma
+      const payment = await tx.payment.create({
+        data: {
+          orderId: order.id,
+          method: PaymentMethod.PIX, // Placeholder, updated via webhook
+          status: 'PENDING',
+          paymentUrl: data.url
+        }
+      })
+
+      return { order, payment, redirectUrl: data.url }
     })
 
-    return { success: true, orderNumber: result.order.orderNumber, orderId: result.order.id }
+    return { 
+      success: true, 
+      orderNumber: result.order.orderNumber, 
+      orderId: result.order.id,
+      redirectUrl: result.redirectUrl 
+    }
 
   } catch (error) {
     console.error('Error creating order:', error)

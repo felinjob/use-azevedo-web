@@ -1,6 +1,11 @@
+'use client'
+
 import Link from 'next/link'
+import Image from 'next/image'
+import { useUIStore } from '@/lib/store/ui'
 
 export default function Footer() {
+  const { openSizeGuide } = useUIStore()
   return (
     <footer className="bg-[var(--color-brand-green-deep)] text-[var(--color-brand-ivory)] pt-16 pb-8">
       <div className="container mx-auto px-4">
@@ -8,7 +13,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <div className="mb-4">
-              <span className="font-serif text-3xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
+              <Image src="/logo-ua.png" alt="Loja Use Azevedo" width={80} height={80} className="object-contain" />
             </div>
             <p className="text-sm font-light text-[var(--color-brand-ivory)]/60 leading-relaxed mb-6">
               A marca que entende as suas curvas. Moda mid e plus size com modelagem exclusiva, alfaiataria premium e caimento impecável.
@@ -21,7 +26,7 @@ export default function Footer() {
             <h3 className="text-[var(--color-brand-ivory)] font-semibold tracking-[0.1em] uppercase text-[13px] mb-5">Atendimento</h3>
             <ul className="space-y-3 text-sm font-light text-[var(--color-brand-ivory)]/60">
               <li><a href="https://wa.me/5521978594358" className="hover:text-[var(--color-brand-ivory)] transition-colors">WhatsApp: (21) 97859-4358</a></li>
-              <li><a href="mailto:contato@useazevedo.com.br" className="hover:text-[var(--color-brand-ivory)] transition-colors">contato@useazevedo.com.br</a></li>
+              <li><a href="mailto:useazevedoo@gmail.com" className="hover:text-[var(--color-brand-ivory)] transition-colors">useazevedoo@gmail.com</a></li>
               <li><Link href="/rastreio" className="hover:text-[var(--color-brand-ivory)] transition-colors">Rastreie seu pedido</Link></li>
             </ul>
           </div>
@@ -32,8 +37,7 @@ export default function Footer() {
               <li><Link href="/sobre" className="hover:text-[var(--color-brand-ivory)] transition-colors">Nossa História</Link></li>
               <li><Link href="/duvidas" className="hover:text-[var(--color-brand-ivory)] transition-colors font-medium">Dúvidas Frequentes (FAQ)</Link></li>
               <li><Link href="/politica-de-trocas" className="hover:text-[var(--color-brand-ivory)] transition-colors">Política de Trocas e Devoluções</Link></li>
-              <li><Link href="/prazos" className="hover:text-[var(--color-brand-ivory)] transition-colors">Prazos de Entrega</Link></li>
-              <li><Link href="/guia-medidas" className="hover:text-[var(--color-brand-ivory)] transition-colors">Guia de Medidas</Link></li>
+              <li><button onClick={openSizeGuide} className="hover:text-[var(--color-brand-ivory)] transition-colors text-left w-full">Guia de Medidas</button></li>
             </ul>
           </div>
 
@@ -54,10 +58,10 @@ export default function Footer() {
         <div className="border-t border-[var(--color-brand-green-surface)] pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--color-brand-ivory)]/40">
           <p>© {new Date().getFullYear()} Use Azevedo. Todos os direitos reservados.</p>
           <div className="mt-2 md:mt-0 flex flex-col md:flex-row items-center gap-4">
-            <p>CNPJ: 00.000.000/0001-00</p>
+            <p>CNPJ: 63.157.524/0001-00 — Use Azevedo Moda Feminina</p>
             <p className="hidden md:block text-[var(--color-brand-ivory)]/20">•</p>
-            <p>
-              Desenvolvido por <a href="#" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-brand-ivory)] transition-colors font-medium">darkmode.id</a>
+            <p className="flex items-center gap-1 px-2 py-0.5">
+              Desenvolvido por <a href="https://darkmode.id" target="_blank" rel="noopener noreferrer" className="font-bold text-[var(--color-brand-ivory)] hover:underline opacity-80 hover:opacity-100 transition-opacity">darkmode.id</a>
             </p>
           </div>
         </div>

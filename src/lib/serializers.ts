@@ -3,6 +3,8 @@ import { Prisma } from '@prisma/client'
 export interface SerializedVariant {
   id: string
   size: string
+  color?: string
+  colorHex?: string
   stockQuantity: number
   bustCm: number | null
   waistCm: number | null

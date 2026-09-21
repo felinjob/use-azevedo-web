@@ -2,27 +2,33 @@ import { PrismaClient } from '@prisma/client'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { CheckCircle, Truck, MapPin, Smartphone } from 'lucide-react'
+import { CheckCircle, Truck, MapPin, Smartphone, Receipt, CreditCard } from 'lucide-react'
 import Topbar from '@/components/layout/Topbar'
 import OrderClientLogic from './OrderClientLogic'
-import PixPaymentDetails from '@/components/checkout/PixPaymentDetails'
+import OrderStatusClient from './OrderStatusClient'
 
 const prisma = new PrismaClient()
 
 interface OrderSuccessPageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ orderNumber: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function OrderSuccessPage({ params }: OrderSuccessPageProps) {
-  const { id } = await params
+export default async function OrderSuccessPage({ params, searchParams }: OrderSuccessPageProps) {
+  const { orderNumber } = await params
+  const resolvedSearchParams = await searchParams
 
   const order = await prisma.order.findUnique({
-    where: { id },
+    where: { orderNumber },
     include: {
       customer: true,
       shippingAddress: true,
       payment: true,
-      items: true
+      items: {
+        include: {
+          product: true
+        }
+      }
     }
   })
 
@@ -30,9 +36,20 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
     notFound()
   }
 
-  const isPix = order.payment?.method === 'PIX'
-  const whatsappNumber = '5521999999999' // Amanda's WhatsApp
-  const whatsappMessage = encodeURIComponent(`Olá Amanda! Acabei de realizar o pedido ${order.orderNumber}. Gostaria de acompanhar o status!`)
+  const searchReceiptUrl = resolvedSearchParams?.receipt_url as string | undefined
+  const searchCaptureMethod = resolvedSearchParams?.capture_method as string | undefined
+  
+  const paymentMetadata = order.payment?.metadata as any
+  const finalReceiptUrl = searchReceiptUrl || paymentMetadata?.receipt_url
+  
+  const captureMethod = searchCaptureMethod || (order.payment?.method === 'PIX' ? 'pix' : 'credit_card')
+  const isPix = captureMethod === 'pix'
+  const isPaid = order.status === 'PAID'
+
+  const hasMadeToOrder = order.items.some(item => item.product.availability === 'MADE_TO_ORDER')
+
+  const whatsappNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE || '5521999999999'
+  const whatsappMessage = encodeURIComponent(`Olá! Acabei de realizar o pedido ${order.orderNumber}. Gostaria de acompanhar o status!`)
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
 
   return (
@@ -42,12 +59,22 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
       {/* Clear Cart on Mount */}
       <OrderClientLogic />
 
+      <header className="bg-white border-b border-gray-200 py-6">
+        <div className="container mx-auto px-4 md:px-8 flex items-center justify-center">
+          <Link href="/">
+            <h1 className="text-2xl font-serif text-[var(--color-brand-dark)] tracking-wide hover:opacity-80 transition-opacity">
+              USE AZEVEDO
+            </h1>
+          </Link>
+        </div>
+      </header>
+
       <main className="container mx-auto px-4 md:px-8 py-12 max-w-4xl">
         
         {/* Header de Sucesso */}
         <div className="text-center mb-12">
           <CheckCircle className="w-16 h-16 text-[var(--color-brand-green-deep)] mx-auto mb-4" />
-          <h1 className="text-3xl font-serif text-[var(--color-brand-dark)] mb-2">Pedido Realizado com Sucesso!</h1>
+          <h1 className="text-3xl font-serif text-[var(--color-brand-dark)] mb-2">Pedido Recebido com Sucesso!</h1>
           <p className="text-gray-600">
             Obrigado pela preferência, {order.customer.name.split(' ')[0]}! <br/>
             Seu número de pedido é <strong>{order.orderNumber}</strong>
@@ -59,24 +86,14 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
           {/* Coluna Esquerda: Pagamento e Ações */}
           <div className="space-y-6">
             
-            {/* Bloco de Pagamento */}
-            <div className="bg-white p-6 border border-gray-200">
-              <h2 className="text-lg font-bold text-[var(--color-brand-dark)] mb-4 uppercase tracking-widest border-b border-gray-100 pb-2">
-                Pagamento
-              </h2>
-              
-              {isPix && order.payment ? (
-                <PixPaymentDetails 
-                  pixCopiaECola={order.payment.pixCopiaECola || ''} 
-                  expiresAt={order.payment.pixExpiresAt} 
-                />
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-[var(--color-brand-dark)] font-medium">Cartão de Crédito</p>
-                  <p className="text-sm text-gray-500 mt-1">Transação em análise pela administradora.</p>
-                </div>
-              )}
-            </div>
+            {/* Bloco de Pagamento Reativo */}
+            <OrderStatusClient 
+              orderNumber={order.orderNumber}
+              initialStatus={order.status}
+              isPix={isPix}
+              finalReceiptUrl={finalReceiptUrl}
+              hasMadeToOrder={hasMadeToOrder}
+            />
 
             {/* Bloco de Contato */}
             <div className="bg-white p-6 border border-gray-200">
@@ -84,17 +101,24 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
                 Atendimento
               </h2>
               <p className="text-sm text-gray-600 mb-4">
-                Dúvidas sobre o pedido? Fale diretamente com a Amanda no WhatsApp.
+                Dúvidas sobre o pedido? Fale diretamente com a nossa equipe no WhatsApp.
               </p>
               <a 
                 href={whatsappLink} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full bg-[#25D366] text-white py-3 font-bold uppercase tracking-wider hover:bg-[#128C7E] transition-colors flex items-center justify-center rounded-sm"
+                className="w-full bg-[#25D366] text-white py-3 font-bold uppercase tracking-wider hover:bg-[#128C7E] transition-colors flex items-center justify-center rounded-sm mb-4"
               >
                 <Smartphone className="w-5 h-5 mr-2" />
-                Notificar Amanda
+                Acompanhar via WhatsApp
               </a>
+
+              <Link 
+                href="/" 
+                className="w-full inline-flex items-center justify-center px-6 py-3 border border-[#0B3B24] text-[#0B3B24] hover:bg-[#0B3B24] hover:text-white transition-all rounded-md text-sm font-medium tracking-wide"
+              >
+                &larr; Voltar para a Loja / Continuar Comprando
+              </Link>
             </div>
 
           </div>
@@ -152,7 +176,11 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Frete</span>
-                  <span>R$ {Number(order.shippingCost).toFixed(2).replace('.', ',')}</span>
+                  <span>
+                    {order.shippingType === 'MOTOBOY_RJ' 
+                      ? 'A combinar com a Amanda' 
+                      : `R$ ${Number(order.shippingCost).toFixed(2).replace('.', ',')}`}
+                  </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg text-[var(--color-brand-dark)] pt-2">
                   <span>Total</span>

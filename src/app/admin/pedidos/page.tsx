@@ -1,6 +1,8 @@
 import { PrismaClient, OrderStatus } from '@prisma/client'
 import { PackageOpen, Clock, Truck, DollarSign } from 'lucide-react'
 import OrderRowActions from '@/components/admin/OrderRowActions'
+import MarkAsPaidButton from '@/components/admin/MarkAsPaidButton'
+import AutoRefresh from '@/components/admin/AutoRefresh'
 
 const prisma = new PrismaClient()
 
@@ -38,6 +40,7 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
+      <AutoRefresh intervalMs={5000} />
       <div>
         <h1 className="text-2xl font-serif text-[var(--color-brand-dark)]">Gestão de Pedidos</h1>
         <p className="text-gray-500 text-sm mt-1">Acompanhe e gerencie as vendas da Use Azevedo.</p>
@@ -145,7 +148,10 @@ export default async function AdminOrdersPage() {
                         {badge.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex items-center justify-end">
+                      {order.status === 'PENDING' && (
+                        <MarkAsPaidButton orderNumber={order.orderNumber} />
+                      )}
                       <OrderRowActions 
                         orderId={order.id} 
                         currentStatus={order.status} 

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, ShoppingBag, LogOut, ExternalLink, Sparkles } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, LogOut, ExternalLink, Sparkles, Ticket } from 'lucide-react'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -66,6 +66,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Sparkles className="w-5 h-5 mr-3" />
             Banners & Stories
+          </Link>
+          <Link 
+            href="/admin/cupons"
+            className={`flex items-center px-4 py-3 text-sm rounded-sm transition-colors ${
+              pathname.includes('/admin/cupons') 
+                ? 'bg-green-50 text-[var(--color-brand-green-deep)] font-semibold' 
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            }`}
+          >
+            <Ticket className="w-5 h-5 mr-3" />
+            Cupons & Promoções
           </Link>
         </nav>
 

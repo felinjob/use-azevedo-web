@@ -50,9 +50,7 @@ export function calculateShippingOptions(
   const isRJ = uf.toUpperCase() === 'RJ'
   const options: ShippingOption[] = []
 
-  const productionText = hasMadeToOrder 
-    ? ` (inclui ${maxProductionDays} dias de confecção)` 
-    : ''
+  const productionText = ''
 
   const isFreeShipping = 
     (paymentMethod === 'PIX' && subtotal >= 199) || 
@@ -62,9 +60,9 @@ export function calculateShippingOptions(
     options.push({
       id: 'MOTOBOY_RJ',
       name: 'Motoboy',
-      price: isFreeShipping ? 0 : 22.00,
-      estimatedDays: 2 + maxProductionDays,
-      description: `1 a 2 dias úteis${productionText}`,
+      price: 0, // Motoboy is always 0 in the system to not add to total, since it's "A combinar"
+      estimatedDays: 2,
+      description: `1 a 2 dias úteis`,
     })
   }
 
@@ -72,24 +70,24 @@ export function calculateShippingOptions(
     id: 'CORREIOS_SEDEX',
     name: 'SEDEX',
     price: isRJ ? 24.90 : 42.50,
-    estimatedDays: 3 + maxProductionDays,
-    description: `2 a 3 dias úteis${productionText}`,
+    estimatedDays: 3,
+    description: `2 a 3 dias úteis`,
   })
 
   options.push({
     id: 'CORREIOS_PAC',
     name: 'PAC',
     price: isFreeShipping ? 0 : (isRJ ? 18.90 : 26.90),
-    estimatedDays: 8 + maxProductionDays,
-    description: `6 a 8 dias úteis${productionText}`,
+    estimatedDays: 8,
+    description: `6 a 8 dias úteis`,
   })
 
   options.push({
     id: 'PICKUP',
     name: 'Retirada no Local',
     price: 0,
-    estimatedDays: maxProductionDays, // Instant after production
-    description: `Rio de Janeiro - RJ (Agendamento via WhatsApp)${productionText}`,
+    estimatedDays: 0,
+    description: `Rio de Janeiro - RJ (Agendamento via WhatsApp)`,
   })
 
   return options

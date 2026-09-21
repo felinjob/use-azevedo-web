@@ -16,7 +16,7 @@ interface ProductCardProps {
     originalPrice?: Prisma.Decimal | null;
     availability: string;
     images: string[];
-    variants: { id?: string, size: string, color?: string, stockQuantity?: number }[];
+    variants: { id?: string, size: string, color?: string, colorHex?: string, stockQuantity?: number }[];
   }
 }
 
@@ -27,6 +27,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   const sizes = Array.from(new Set(product.variants.map(v => v.size))).sort()
   const priceNum = Number(product.price)
   const installmentValue = (priceNum / 12).toFixed(2).replace('.', ',')
+
+  const uniqueColorsMap = new Map<string, string>()
+  if (product.variants) {
+    product.variants.forEach(v => {
+      if (v.color && v.colorHex) {
+        uniqueColorsMap.set(v.color, v.colorHex)
+      }
+    })
+  }
+  const uniqueColors = Array.from(uniqueColorsMap.entries())
 
   const primaryImage = product.images[0]
   const secondaryImage = product.images[1] || product.images[0]
@@ -61,8 +71,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     }, 300)
   }
 
+  const safeSlug = product.slug || product.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
   return (
-    <Link href={`/produto/${product.slug}`} className="group flex flex-col gap-3">
+    <Link href={`/produto/${safeSlug}`} className="group flex flex-col gap-3">
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100 rounded-sm">
         {primaryImage && (
           <div className="w-full h-full relative">
@@ -88,17 +100,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         
-        {/* Badge */}
-        <div className="absolute top-3 left-3 z-10">
-          <span className={cn(
-            "text-[10px] font-bold tracking-wider px-2 py-1 uppercase shadow-sm rounded-sm",
-            isReadyToShip 
-              ? "bg-[var(--color-brand-green-deep)] text-[var(--color-brand-ivory)]" 
-              : "bg-[var(--color-brand-ivory)] text-[var(--color-brand-green-deep)] border border-[var(--color-brand-muted)]/20"
-          )}>
-            {isReadyToShip ? 'Pronta Entrega' : 'Sob Encomenda'}
-          </span>
-        </div>
 
         {/* Quick Add Sizes Hover */}
         <div className="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out p-3 text-center border-t border-gray-100 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
@@ -118,25 +119,49 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-col items-start px-1">
-        <h3 className="text-sm md:text-base font-medium text-[var(--color-brand-dark)] group-hover:opacity-70 transition-opacity line-clamp-1">
+      <div className="flex flex-col items-start px-1 mt-2">
+        <span className={cn(
+          "text-[10px] md:text-[11px] font-bold tracking-wider uppercase mb-1.5 flex items-center gap-1",
+          isReadyToShip 
+            ? "text-[var(--color-brand-green-deep)]" 
+            : "text-[#B8860B]"
+        )}>
+          {isReadyToShip ? <span className="text-[14px] leading-none mb-0.5">•</span> : <span className="text-[12px] leading-none">✦</span>}
+          {isReadyToShip ? 'Pronta Entrega' : 'Sob Encomenda'}
+        </span>
+        
+        <h3 className="text-sm md:text-base font-medium text-[#1A1A1A] group-hover:opacity-70 transition-opacity line-clamp-1">
           {product.name}
         </h3>
-        <div className="mt-1 flex flex-col">
+        
+        <div className="mt-1.5 flex flex-col">
           <div className="flex items-center gap-2">
-            <span className="text-[15px] md:text-lg font-bold text-[var(--color-brand-dark)]">
+            <span className="text-[15px] md:text-lg font-bold text-[#1A1A1A]">
               R$ {priceNum.toFixed(2).replace('.', ',')}
             </span>
             {product.originalPrice && (
-              <span className="text-[11px] md:text-sm text-[var(--color-brand-muted)] line-through">
+              <span className="text-[11px] md:text-sm text-[#4A4A4A] line-through">
                 R$ {Number(product.originalPrice).toFixed(2).replace('.', ',')}
               </span>
             )}
           </div>
-          <span className="text-[10px] md:text-xs text-[var(--color-brand-muted)]">
+          <span className="text-[10px] md:text-xs text-[#4A4A4A]">
             ou 12x de R$ {installmentValue}
           </span>
         </div>
+
+        {uniqueColors.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {uniqueColors.map(([colorName, colorHex]) => (
+              <div 
+                key={colorName}
+                title={colorName}
+                className="w-3.5 h-3.5 rounded-full border border-gray-300"
+                style={{ backgroundColor: colorHex }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </Link>
   )

@@ -101,10 +101,12 @@ model Order {
   trackingCode          String?
   motoboyNotes          String?
   estimatedDeliveryDate DateTime?
+  couponId              String?
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
   customer              Customer     @relation(fields: [customerId], references: [id])
   shippingAddress       Address?     @relation(fields: [shippingAddressId], references: [id])
+  coupon                Coupon?      @relation(fields: [couponId], references: [id])
   items                 OrderItem[]
   payment               Payment?
 }
@@ -131,16 +133,33 @@ model Payment {
   method               PaymentMethod
   status               PaymentStatus @default(PENDING)
   gatewayTransactionId String?
+  paymentUrl           String?
   pixQrCode            String?
   pixCopiaECola        String?
   pixExpiresAt         DateTime?
   installments         Int?          @default(1)
   paidAt               DateTime?
+  metadata             Json?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
   order                Order         @relation(fields: [orderId], references: [id])
 
   @@index([gatewayTransactionId])
+}
+
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  discountType  String       // 'PERCENTAGE' ou 'FIXED'
+  discountValue Decimal      @db.Decimal(10, 2)
+  minOrderValue Decimal?     @db.Decimal(10, 2)
+  maxUses       Int?
+  usageCount    Int          @default(0)
+  expiresAt     DateTime?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  orders        Order[]
 }
 
 model BannerHighlight {

@@ -16,7 +16,21 @@ interface ProductDetailsViewProps {
 
 export default function ProductDetailsView({ product }: ProductDetailsViewProps) {
   const [activeImage, setActiveImage] = useState(product.images[0] || '')
-  const [selectedSize, setSelectedSize] = useState<string>('')
+  
+  const hasOnlyTamanhoUnico = product.variants.length === 1 && product.variants[0].size === 'Tamanho Único'
+  const [selectedSize, setSelectedSize] = useState<string>(hasOnlyTamanhoUnico ? 'Tamanho Único' : '')
+  const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({ transform: 'scale(1)' })
+  
+  // Extract unique colors
+  const uniqueColorsMap = new Map<string, string>()
+  product.variants.forEach(v => {
+    if (v.color && v.colorHex) {
+      uniqueColorsMap.set(v.color, v.colorHex)
+    }
+  })
+  const uniqueColors = Array.from(uniqueColorsMap.entries())
+  const [selectedColor, setSelectedColor] = useState<string>(uniqueColors.length > 0 ? uniqueColors[0][0] : 'Única')
+
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false)
   const [isFitFinderOpen, setIsFitFinderOpen] = useState(false)
   const [showSizeError, setShowSizeError] = useState(false)
@@ -26,27 +40,6 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
   const isReadyToShip = product.availability === 'READY_TO_SHIP'
   const priceNum = Number(product.price)
   const installmentValue = (priceNum / 12).toFixed(2).replace('.', ',')
-
-  // Sorting and deduplicating sizes for the selector
-  const sortedVariants = [...product.variants].sort((a, b) => {
-    const aNum = parseInt(a.size)
-    const bNum = parseInt(b.size)
-    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum
-    return a.size.localeCompare(b.size)
-  })
-  
-  // Create a map to ensure unique sizes and their total stock
-  const sizeStockMap = new Map<string, number>()
-  const sizeVariantMap = new Map<string, SerializedVariant>()
-  
-  sortedVariants.forEach(v => {
-    sizeStockMap.set(v.size, (sizeStockMap.get(v.size) || 0) + v.stockQuantity)
-    if (!sizeVariantMap.has(v.size)) {
-      sizeVariantMap.set(v.size, v)
-    }
-  })
-
-  const uniqueSizes = Array.from(sizeStockMap.keys())
 
   const handleWhatsAppClick = () => {
     const text = `Olá, Amanda! Estou na loja olhando o ${product.name} no tamanho ${selectedSize || '[Não Selecionado]'} e gostaria de uma ajuda com o caimento.`
@@ -62,7 +55,7 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
     }
 
     setShowSizeError(false)
-    const variant = sizeVariantMap.get(selectedSize)
+    const variant = product.variants.find(v => v.size === selectedSize && v.color === selectedColor)
     
     if (variant) {
       addItem({
@@ -73,7 +66,7 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
         price: priceNum,
         image: product.images[0] || '',
         size: selectedSize,
-        color: 'Única', // Could be dynamic if colors exist
+        color: selectedColor,
         availability: product.availability as 'READY_TO_SHIP' | 'MADE_TO_ORDER',
         productionTimeDays: product.productionTimeDays,
         quantity: 1,
@@ -81,6 +74,24 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
       })
       openCart()
     }
+  }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - left) / width) * 100
+    const y = ((e.clientY - top) / height) * 100
+    // Only zoom on desktop (assumed by having mouse events, but you can refine logic if needed)
+    setZoomStyle({
+      transformOrigin: `${x}% ${y}%`,
+      transform: 'scale(2.2)'
+    })
+  }
+
+  const handleMouseLeave = () => {
+    setZoomStyle({
+      transformOrigin: 'center center',
+      transform: 'scale(1)'
+    })
   }
 
   return (
@@ -97,7 +108,7 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
                 onClick={() => setActiveImage(img)}
                 className={cn(
                   "relative w-20 h-28 md:w-full md:h-32 flex-shrink-0 border-2 transition-all overflow-hidden",
-                  activeImage === img ? "border-[var(--color-brand-gold)]" : "border-transparent opacity-70 hover:opacity-100"
+                  activeImage === img ? "border-[var(--color-brand-green-deep)]" : "border-transparent opacity-70 hover:opacity-100"
                 )}
               >
                 <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
@@ -107,16 +118,25 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
         )}
         
         {/* Main Image */}
-        <div className="relative aspect-[3/4] w-full bg-gray-100 overflow-hidden">
+        <div 
+          className="relative aspect-[3/4] w-full bg-gray-100 overflow-hidden cursor-crosshair group"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           {activeImage && (
-            <Image 
-              src={activeImage} 
-              alt={product.name} 
-              fill 
-              className="object-cover"
-              priority
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
+            <div 
+              className="absolute inset-0 w-full h-full transition-transform duration-200 ease-out"
+              style={zoomStyle}
+            >
+              <Image 
+                src={activeImage} 
+                alt={product.name} 
+                fill 
+                className="object-cover"
+                priority
+                sizes="(min-width: 1024px) 50vw, 100vw"
+              />
+            </div>
           )}
         </div>
       </div>
@@ -146,76 +166,138 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
           ou em até <strong>12x de R$ {installmentValue}</strong> no cartão de crédito
         </p>
 
-        {/* Availability Badge */}
-        <div className={cn(
-          "inline-flex items-center self-start px-4 py-2 mb-8 text-sm font-semibold border",
-          isReadyToShip 
-            ? "bg-[var(--color-brand-green-deep)]/10 border-[var(--color-brand-green-deep)]/20 text-[var(--color-brand-green-deep)]" 
-            : "bg-[var(--color-brand-gold)]/10 border-[var(--color-brand-gold)]/30 text-[var(--color-brand-gold)]"
-        )}>
-          {isReadyToShip 
-            ? "📦 Pronta Entrega - Despacho Imediato" 
-            : `⏳ Sob Encomenda: Produzido especialmente para você em até ${product.productionTimeDays} dias úteis.`
-          }
-        </div>
-
-        {/* Size Selector */}
-        <div id="size-selector" className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-            <span className="text-sm font-bold uppercase tracking-wider text-[var(--color-brand-dark)]">
-              Tamanho
+        {/* Color Swatches */}
+        {uniqueColors.length > 0 && (
+          <div className="mb-8">
+            <span className="block text-sm font-bold uppercase tracking-wider text-[#1A1A1A] mb-3">
+              Cores Disponíveis: <span className="font-normal text-[#4A4A4A] capitalize">{selectedColor}</span>
             </span>
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setIsFitFinderOpen(true)}
-                className="flex items-center gap-1 text-xs text-[var(--color-brand-green-deep)] hover:text-[var(--color-brand-dark)] font-bold tracking-wide uppercase transition-colors"
-              >
-                <Ruler className="w-3.5 h-3.5" />
-                Descubra seu Tamanho
-              </button>
-              <button 
-                onClick={() => setIsSizeGuideOpen(true)}
-                className="text-xs text-[var(--color-brand-gold)] hover:text-[var(--color-brand-gold-light)] font-bold tracking-wide uppercase underline underline-offset-4 transition-colors"
-              >
-                Tabela de Medidas
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-3">
-            {uniqueSizes.map((size) => {
-              const stock = sizeStockMap.get(size) || 0
-              const isOutOfStock = stock === 0
-              
-              return (
+            <div className="flex flex-wrap gap-3">
+              {uniqueColors.map(([colorName, colorHex]) => (
                 <button
-                  key={size}
-                  disabled={isOutOfStock}
+                  key={colorName}
                   onClick={() => {
-                    setSelectedSize(size)
-                    setShowSizeError(false)
+                    setSelectedColor(colorName)
+                    // Verifica se o tamanho atual existe na nova cor
+                    const sizeExistsInNewColor = product.variants.some(v => v.color === colorName && v.size === selectedSize)
+                    if (!sizeExistsInNewColor) {
+                      setSelectedSize('')
+                    }
                   }}
+                  title={colorName}
                   className={cn(
-                    "w-12 h-12 flex items-center justify-center border transition-all text-sm font-bold rounded-sm",
-                    isOutOfStock 
-                      ? "opacity-40 cursor-not-allowed bg-gray-100 border-gray-200 text-gray-400 relative overflow-hidden before:absolute before:inset-0 before:border-t before:border-gray-300 before:rotate-45 before:scale-150" 
-                      : selectedSize === size
-                        ? "border-[var(--color-brand-green-deep)] bg-[var(--color-brand-green-deep)] text-white"
-                        : "border-gray-300 hover:border-[var(--color-brand-green-deep)] text-[var(--color-brand-dark)]",
-                    showSizeError && !selectedSize ? "border-red-500 animate-pulse" : ""
+                    "relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all",
+                    selectedColor === colorName ? "border-[var(--color-brand-green-deep)]" : "border-transparent hover:border-gray-300"
                   )}
                 >
-                  <span className="relative z-10">{size}</span>
+                  <span 
+                    className="w-7 h-7 rounded-full border border-black/10"
+                    style={{ backgroundColor: colorHex }}
+                  />
                 </button>
-              )
-            })}
+              ))}
+            </div>
           </div>
-          {showSizeError && (
-            <p className="text-red-500 text-xs mt-3 flex items-center gap-1 font-bold">
-              <AlertCircle className="w-4 h-4" />
-              Por favor, selecione um tamanho antes de adicionar à sacola.
-            </p>
-          )}
+        )}
+
+        {/* Variáveis dinâmicas para a cor selecionada */}
+        {(() => {
+          const variantsForColor = product.variants.filter(v => v.color === selectedColor)
+          
+          const sortedVariants = [...variantsForColor].sort((a, b) => {
+            const aNum = parseInt(a.size)
+            const bNum = parseInt(b.size)
+            if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum
+            return a.size.localeCompare(b.size)
+          })
+          
+          const sizeStockMap = new Map<string, number>()
+          sortedVariants.forEach(v => {
+            sizeStockMap.set(v.size, (sizeStockMap.get(v.size) || 0) + v.stockQuantity)
+          })
+          const uniqueSizes = Array.from(sizeStockMap.keys())
+
+          return (
+            <div id="size-selector" className="mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <span className="text-sm font-bold uppercase tracking-wider text-[var(--color-brand-dark)]">
+                  Tamanho
+                </span>
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => setIsFitFinderOpen(true)}
+                    className="flex items-center gap-1 text-xs text-[var(--color-brand-green-deep)] hover:text-[var(--color-brand-dark)] font-bold tracking-wide uppercase transition-colors"
+                  >
+                    <Ruler className="w-3.5 h-3.5" />
+                    Descubra seu Tamanho
+                  </button>
+                  <button 
+                    onClick={() => setIsSizeGuideOpen(true)}
+                    className="text-xs text-[var(--color-brand-dark)] hover:text-black font-bold tracking-wide uppercase underline underline-offset-4 transition-colors"
+                  >
+                    Tabela de Medidas
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-3">
+                {uniqueSizes.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">Nenhum tamanho disponível para esta cor.</p>
+                ) : (
+                  uniqueSizes.map((size) => {
+                    const stock = sizeStockMap.get(size) || 0
+                    const isOutOfStock = stock === 0
+                    
+                    return (
+                      <button
+                        key={size}
+                        disabled={isOutOfStock}
+                        onClick={() => {
+                          setSelectedSize(size)
+                          setShowSizeError(false)
+                        }}
+                        className={cn(
+                          "w-12 h-12 flex items-center justify-center border transition-all text-sm font-bold rounded-sm",
+                          isOutOfStock 
+                            ? "opacity-40 cursor-not-allowed bg-gray-100 border-gray-200 text-gray-400 relative overflow-hidden before:absolute before:inset-0 before:border-t before:border-gray-300 before:rotate-45 before:scale-150" 
+                            : selectedSize === size
+                              ? "border-[var(--color-brand-green-deep)] bg-[var(--color-brand-green-deep)] text-white"
+                              : "border-gray-300 hover:border-[var(--color-brand-green-deep)] text-[var(--color-brand-dark)]",
+                          showSizeError && !selectedSize ? "border-red-500 animate-pulse" : ""
+                        )}
+                      >
+                        <span className="relative z-10">{size}</span>
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+              {showSizeError && (
+                <p className="text-red-500 text-xs mt-3 flex items-center gap-1 font-bold">
+                  <AlertCircle className="w-4 h-4" />
+                  Por favor, selecione um tamanho antes de adicionar à sacola.
+                </p>
+              )}
+            </div>
+          )
+        })()}
+
+        {/* Availability Card (replaces the badge) */}
+        <div className={cn(
+          "flex flex-col gap-1 p-4 mb-8 border-l-4 rounded-r-md bg-white shadow-sm border border-l-0 border-t-gray-100 border-r-gray-100 border-b-gray-100",
+          isReadyToShip 
+            ? "border-l-[var(--color-brand-green-deep)]" 
+            : "border-l-[var(--color-brand-gold)]"
+        )}>
+          <span className="text-sm font-bold text-[#1A1A1A]">
+            {isReadyToShip ? "Pronta Entrega" : "Sob Encomenda"}
+          </span>
+          <p className="text-[13px] text-[#4A4A4A]">
+            {isReadyToShip 
+              ? "Despacho imediato em até 24h úteis após a confirmação do pagamento." 
+              : "Produzido especialmente para você. O prazo de confecção será somado ao frete."
+            }
+          </p>
         </div>
 
         {/* Actions */}

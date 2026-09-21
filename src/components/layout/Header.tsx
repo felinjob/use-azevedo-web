@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Search, ShoppingBag, MessageCircle, Menu } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { useUIStore } from '@/lib/store/ui'
@@ -31,10 +32,18 @@ export default function Header() {
 
           {/* Logo */}
           <div className="flex flex-1 items-center justify-center lg:justify-start">
-            <Link href="/" className="flex flex-col items-center justify-center hover:opacity-90 transition-opacity">
-              <div className="flex flex-col items-center justify-center leading-none">
-                <span className="font-serif text-2xl sm:text-3xl tracking-tight font-medium text-[var(--color-brand-ivory)]">Use Azevedo</span>
-              </div>
+            <Link href="/" className="flex flex-row items-center gap-2.5 hover:opacity-90 transition-opacity">
+              <Image 
+                src="/logo-ua.png" 
+                alt="Monograma UA" 
+                width={40} 
+                height={40} 
+                className="hidden lg:block w-8 h-auto md:w-10 object-contain"
+                style={{ width: 'auto', height: 'auto' }}
+              />
+              <span className="font-serif text-xl md:text-2xl font-normal tracking-[0.25em] uppercase text-[var(--color-brand-ivory)]">
+                Use Azevedo
+              </span>
             </Link>
           </div>
 

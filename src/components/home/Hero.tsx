@@ -4,6 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import Link from 'next/link'
 import Image from 'next/image'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface HeroSlideItem {
@@ -28,6 +29,8 @@ export default function Hero({ slides = [] }: HeroProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi])
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi])
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi])
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
@@ -92,16 +95,35 @@ export default function Hero({ slides = [] }: HeroProps) {
 
       {/* Pagination Dots */}
       {slides.length > 1 && (
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              className={`h-1 transition-all duration-300 rounded-full ${index === selectedIndex ? 'w-8 bg-[var(--color-brand-ivory)]' : 'w-4 bg-[var(--color-brand-ivory)]/40 hover:bg-[var(--color-brand-ivory)]/70'}`}
-              onClick={() => scrollTo(index)}
-              aria-label={`Ir para slide ${index + 1}`}
-            />
-          ))}
-        </div>
+        <>
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                className={`h-1 transition-all duration-300 rounded-full ${index === selectedIndex ? 'w-8 bg-[var(--color-brand-ivory)]' : 'w-4 bg-[var(--color-brand-ivory)]/40 hover:bg-[var(--color-brand-ivory)]/70'}`}
+                onClick={() => scrollTo(index)}
+                aria-label={`Ir para slide ${index + 1}`}
+              />
+            ))}
+          </div>
+          
+          {/* Navigation Arrows */}
+          <button
+            onClick={scrollPrev}
+            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 bg-white/80 dark:bg-black/40 backdrop-blur-md border border-white/20 text-[#1A1A1A] hover:scale-105 transition-all p-3 shadow-md rounded-full"
+            aria-label="Slide anterior"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button
+            onClick={scrollNext}
+            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 bg-white/80 dark:bg-black/40 backdrop-blur-md border border-white/20 text-[#1A1A1A] hover:scale-105 transition-all p-3 shadow-md rounded-full"
+            aria-label="Próximo slide"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
       )}
     </section>
   )

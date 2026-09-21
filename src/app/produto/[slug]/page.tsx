@@ -15,9 +15,23 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const resolvedParams = await params
-  const product = await prisma.product.findUnique({
-    where: { slug: resolvedParams.slug, active: true }
+  const decodedSlug = decodeURIComponent(resolvedParams.slug)
+  
+  let product = await prisma.product.findUnique({
+    where: { slug: decodedSlug, active: true }
   })
+
+  if (!product) {
+    product = await prisma.product.findFirst({
+      where: {
+        active: true,
+        OR: [
+          { slug: { equals: decodedSlug, mode: 'insensitive' } },
+          { name: { equals: decodedSlug, mode: 'insensitive' } }
+        ]
+      }
+    })
+  }
 
   if (!product) {
     return { title: 'Produto não encontrado | Use Azevedo' }
@@ -36,14 +50,31 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const resolvedParams = await params
+  const decodedSlug = decodeURIComponent(resolvedParams.slug)
   
-  const product = await prisma.product.findUnique({
-    where: { slug: resolvedParams.slug, active: true },
+  let product = await prisma.product.findUnique({
+    where: { slug: decodedSlug, active: true },
     include: {
       category: true,
       variants: true
     }
   })
+
+  if (!product) {
+    product = await prisma.product.findFirst({
+      where: {
+        active: true,
+        OR: [
+          { slug: { equals: decodedSlug, mode: 'insensitive' } },
+          { name: { equals: decodedSlug, mode: 'insensitive' } }
+        ]
+      },
+      include: {
+        category: true,
+        variants: true
+      }
+    })
+  }
 
   if (!product) {
     notFound()

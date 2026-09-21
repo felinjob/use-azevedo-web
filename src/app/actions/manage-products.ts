@@ -9,6 +9,27 @@ const prisma = new PrismaClient()
 export async function createProduct(data: ProductFormState) {
   try {
     const product = await prisma.$transaction(async (tx) => {
+      // Garantir SKU único se estiver em branco
+      const variantsWithSku = data.variants.map(v => {
+        let finalSku = v.sku?.trim()
+        if (!finalSku) {
+          const slugPrefix = data.slug ? data.slug.substring(0, 5).toUpperCase() : 'NEW'
+          const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase()
+          finalSku = `UA-${slugPrefix}-${randomSuffix}`
+        }
+        return {
+          size: v.size,
+          color: v.color,
+          colorHex: v.colorHex,
+          sku: finalSku,
+          stockQuantity: v.stockQuantity,
+          bustCm: v.bustCm,
+          waistCm: v.waistCm,
+          hipCm: v.hipCm,
+          lengthCm: v.lengthCm
+        }
+      })
+
       // Create product
       const newProduct = await tx.product.create({
         data: {
@@ -26,17 +47,7 @@ export async function createProduct(data: ProductFormState) {
           categoryId: data.categoryId,
           // Create variants inline
           variants: {
-            create: data.variants.map(v => ({
-              size: v.size,
-              color: v.color,
-              colorHex: v.colorHex,
-              sku: v.sku,
-              stockQuantity: v.stockQuantity,
-              bustCm: v.bustCm,
-              waistCm: v.waistCm,
-              hipCm: v.hipCm,
-              lengthCm: v.lengthCm
-            }))
+            create: variantsWithSku
           }
         }
       })
@@ -48,6 +59,16 @@ export async function createProduct(data: ProductFormState) {
     return { success: true, productId: product.id }
   } catch (error: any) {
     console.error('Error creating product:', error)
+    if (error.code === 'P2002') {
+      const target = error.meta?.target || []
+      const targetStr = Array.isArray(target) ? target.join(',') : String(target)
+      if (targetStr.includes('sku')) {
+        return { success: false, error: 'O código SKU gerado já existe. Tente salvar novamente.' }
+      }
+      if (targetStr.includes('slug')) {
+        return { success: false, error: 'Já existe um produto cadastrado com essa URL/Slug.' }
+      }
+    }
     return { success: false, error: error.message || 'Erro ao criar o produto.' }
   }
 }
@@ -76,11 +97,18 @@ export async function updateProduct(id: string, data: ProductFormState) {
 
       // 2. Upsert variants
       for (const variant of data.variants) {
+        let finalSku = variant.sku?.trim()
+        if (!finalSku) {
+          const slugPrefix = data.slug ? data.slug.substring(0, 5).toUpperCase() : 'NEW'
+          const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase()
+          finalSku = `UA-${slugPrefix}-${randomSuffix}`
+        }
+
         if (variant.id) {
           await tx.productVariant.update({
             where: { id: variant.id },
             data: {
-              sku: variant.sku,
+              sku: finalSku,
               color: variant.color,
               colorHex: variant.colorHex,
               stockQuantity: variant.stockQuantity,
@@ -98,7 +126,7 @@ export async function updateProduct(id: string, data: ProductFormState) {
               size: variant.size,
               color: variant.color,
               colorHex: variant.colorHex,
-              sku: variant.sku,
+              sku: finalSku,
               stockQuantity: variant.stockQuantity,
               bustCm: variant.bustCm,
               waistCm: variant.waistCm,
@@ -116,6 +144,16 @@ export async function updateProduct(id: string, data: ProductFormState) {
     return { success: true }
   } catch (error: any) {
     console.error('Error updating product:', error)
+    if (error.code === 'P2002') {
+      const target = error.meta?.target || []
+      const targetStr = Array.isArray(target) ? target.join(',') : String(target)
+      if (targetStr.includes('sku')) {
+        return { success: false, error: 'O código SKU gerado já existe. Tente salvar novamente.' }
+      }
+      if (targetStr.includes('slug')) {
+        return { success: false, error: 'Já existe um produto cadastrado com essa URL/Slug.' }
+      }
+    }
     return { success: false, error: error.message || 'Erro ao atualizar o produto.' }
   }
 }

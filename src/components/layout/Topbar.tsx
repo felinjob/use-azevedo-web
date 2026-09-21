@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 const MESSAGES = [
   "📦 Frete Grátis acima de R$ 199 (Pix) ou R$ 299 (Cartão)!",
   "📏 Na dúvida sobre o tamanho? Use nosso Provador Virtual!",
-  "💳 Parcele suas compras em até 12x sem juros no Cartão"
+  "💳 Parcele suas compras em até 12x"
 ]
 
 export default function Topbar() {

@@ -142,8 +142,8 @@ export default function CartDrawer() {
 
                     <p className="mt-2 text-xs text-[var(--color-brand-muted)]">
                       {item.availability === 'READY_TO_SHIP' 
-                        ? <span className="text-[var(--color-brand-green-deep)] font-medium">Pronta Entrega</span>
-                        : <span className="text-[var(--color-brand-gold)] font-medium">Sob Encomenda ({item.productionTimeDays} dias)</span>
+                        ? <span className="text-[var(--color-brand-green-deep)] font-bold">Pronta Entrega</span>
+                        : <span className="text-amber-700 font-bold">Sob Encomenda</span>
                       }
                     </p>
 
