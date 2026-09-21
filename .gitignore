@@ -47,3 +47,6 @@ CLAUDE.md
 skills-lock.json
 erros.txt
 
+
+.vercel
+.env*

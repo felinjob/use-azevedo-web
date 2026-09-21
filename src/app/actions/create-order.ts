@@ -5,6 +5,7 @@ import { CheckoutFormData } from '@/lib/validations/checkout'
 import { CartItem } from '@/lib/store/cart'
 import { validateCoupon } from '@/app/actions/validate-coupon'
 import crypto from 'crypto'
+import { getBaseUrl } from '@/lib/utils'
 
 const prisma = new PrismaClient()
 
@@ -177,11 +178,15 @@ export async function createOrder({ formData, cartItems, couponCode }: CreateOrd
       const formattedPhone = cleanPhone.startsWith('55') ? `+${cleanPhone}` : `+55${cleanPhone}`
 
       // 6. Create InfinitePay Checkout Link
+      const baseUrl = getBaseUrl()
+      const handle = process.env.INFINITEPAY_HANDLE || 'useazevedo'
+      const apiUrl = process.env.INFINITEPAY_API_URL || 'https://api.checkout.infinitepay.io'
+
       const payload = {
-        handle: process.env.INFINITEPAY_HANDLE,
+        handle: handle,
         order_nsu: orderNumber,
-        redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/pedido/${orderNumber}`,
-        webhook_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/infinitepay`,
+        redirect_url: `${baseUrl}/pedido/${orderNumber}`,
+        webhook_url: `${baseUrl}/api/webhooks/infinitepay`,
         items: ipItems,
         customer: {
           name: formData.customer.name,
@@ -190,7 +195,7 @@ export async function createOrder({ formData, cartItems, couponCode }: CreateOrd
         }
       }
 
-      const ipResponse = await fetch(`${process.env.INFINITEPAY_API_URL}/links`, {
+      const ipResponse = await fetch(`${apiUrl}/links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -200,8 +205,8 @@ export async function createOrder({ formData, cartItems, couponCode }: CreateOrd
 
       if (!ipResponse.ok) {
         const errorText = await ipResponse.text().catch(() => 'Unknown Error')
-        console.error('[INFINITEPAY ERROR]:', ipResponse.status, errorText)
-        throw new Error('Falha ao gerar link de pagamento')
+        console.error('[INFINITEPAY CHECKOUT FAILED]:', ipResponse.status, errorText)
+        throw new Error(`Falha na InfinitePay: ${ipResponse.status} - ${errorText}`)
       }
 
       const data = await ipResponse.json()
