@@ -35,11 +35,11 @@ export async function createCoupon(data: {
     revalidatePath('/checkout')
     
     return { success: true, coupon }
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return { success: false, error: 'Já existe um cupom com este código.' }
     }
-    return { success: false, error: error.message || 'Erro ao criar cupom.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao criar cupom.' }
   }
 }
 
@@ -61,8 +61,8 @@ export async function toggleCouponStatus(id: string, isActive: boolean) {
     revalidatePath('/checkout')
     
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Erro ao atualizar cupom.' }
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao atualizar cupom.' }
   }
 }
 
@@ -83,8 +83,8 @@ export async function deleteCoupon(id: string) {
     revalidatePath('/checkout')
     
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Erro ao excluir cupom.' }
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao excluir cupom.' }
   }
 }
 

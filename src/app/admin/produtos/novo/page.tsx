@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import ProductForm from '@/components/admin/ProductForm'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
-
-const prisma = new PrismaClient()
 
 export default async function NewProductPage() {
   const categories = await prisma.category.findMany({

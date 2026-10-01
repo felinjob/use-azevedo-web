@@ -103,9 +103,9 @@ export default function HighlightModal({
       if (data.url) {
         setImageUrl(data.url)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload error:', err)
-      setErrorMessage(err.message || 'Erro ao fazer upload da imagem.')
+      setErrorMessage(err instanceof Error ? err.message : 'Erro ao fazer upload da imagem.')
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''

@@ -1,10 +1,10 @@
-import { PrismaClient, OrderStatus } from '@prisma/client'
+import { OrderStatus } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { PackageOpen, Clock, Truck, DollarSign } from 'lucide-react'
 import OrderRowActions from '@/components/admin/OrderRowActions'
 import MarkAsPaidButton from '@/components/admin/MarkAsPaidButton'
 import AutoRefresh from '@/components/admin/AutoRefresh'
-
-const prisma = new PrismaClient()
+import { formatCurrency, formatDate } from '@/lib/formatters'
 
 export const revalidate = 0 // Disable cache for admin panel
 
@@ -78,7 +78,7 @@ export default async function AdminOrdersPage() {
             <DollarSign className="text-green-600 w-5 h-5" />
           </div>
           <p className="text-3xl font-serif text-[var(--color-brand-dark)]">
-            R$ {totalRevenue.toFixed(2).replace('.', ',')}
+            {formatCurrency(totalRevenue)}
           </p>
         </div>
       </div>
@@ -107,7 +107,7 @@ export default async function AdminOrdersPage() {
                   <tr key={order.id} className="hover:bg-gray-50/50 transition-colors relative">
                     <td className="px-6 py-4">
                       <p className="font-bold text-[var(--color-brand-dark)]">{order.orderNumber}</p>
-                      <p className="text-xs text-gray-400 mt-1">{new Date(order.createdAt).toLocaleDateString('pt-BR')}</p>
+                      <p className="text-xs text-gray-400 mt-1">{formatDate(order.createdAt)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900">{order.customer.name}</p>
@@ -140,7 +140,7 @@ export default async function AdminOrdersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-gray-900">R$ {Number(order.total).toFixed(2).replace('.', ',')}</p>
+                      <p className="font-semibold text-gray-900">{formatCurrency(Number(order.total))}</p>
                       <p className="text-xs text-gray-500 mt-1">{order.payment?.method === 'PIX' ? 'PIX' : 'Cartão'}</p>
                     </td>
                     <td className="px-6 py-4">

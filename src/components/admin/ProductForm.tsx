@@ -185,7 +185,7 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
     }
   }
 
-  const handleVariantChange = (colorName: string, size: string, field: keyof VariantFormState, value: any) => {
+  const handleVariantChange = (colorName: string, size: string, field: keyof VariantFormState, value: string | number | null) => {
     setFormData(prev => ({
       ...prev,
       variants: prev.variants.map(v => {
@@ -245,8 +245,8 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
 
       router.push('/admin/produtos')
       router.refresh()
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar o produto.')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar o produto.')
       setIsSaving(false)
     }
   }

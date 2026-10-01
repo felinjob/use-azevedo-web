@@ -38,7 +38,23 @@ export interface ShippingOption {
   estimatedDays: number
   description: string
 }
-
+/**
+ * Calcula as opções de frete disponíveis com base no CEP, UF e valor do pedido.
+ *
+ * Regras de negócio:
+ * - Motoboy: somente para RJ, preço = 0 ("a combinar" com a Amanda).
+ * - PAC: frete grátis se PIX >= R$199 ou Cartão >= R$299.
+ * - SEDEX: sempre cobrado, valores diferenciados RJ vs demais estados.
+ * - Retirada: sempre disponível, sem custo.
+ *
+ * @param cep - CEP do destinatário (usado para futuras faixas de preço).
+ * @param uf - Unidade Federativa do destinatário.
+ * @param hasMadeToOrder - Se há itens sob encomenda no pedido.
+ * @param maxProductionDays - Prazo máximo de produção entre os itens.
+ * @param subtotal - Valor subtotal do pedido para cálculo de frete grátis.
+ * @param paymentMethod - Método de pagamento selecionado.
+ * @returns Array de opções de frete ordenadas por prioridade.
+ */
 export function calculateShippingOptions(
   cep: string,
   uf: string,
@@ -49,8 +65,6 @@ export function calculateShippingOptions(
 ): ShippingOption[] {
   const isRJ = uf.toUpperCase() === 'RJ'
   const options: ShippingOption[] = []
-
-  const productionText = ''
 
   const isFreeShipping = 
     (paymentMethod === 'PIX' && subtotal >= 199) || 

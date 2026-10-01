@@ -133,8 +133,8 @@ export function useImageUploadQueue() {
         publicUrl 
       } : i))
 
-    } catch (err: any) {
-      const isNetworkError = err.message === 'Failed to fetch' || err.name === 'TypeError'
+    } catch (err) {
+      const isNetworkError = err instanceof Error && (err.message === 'Failed to fetch' || err.name === 'TypeError')
       
       setQueue(prev => {
         const img = prev.find(i => i.id === id)

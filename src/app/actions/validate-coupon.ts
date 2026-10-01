@@ -1,7 +1,26 @@
 'use server'
 
 import prisma from '@/lib/prisma'
+import { formatCurrency } from '@/lib/formatters'
 
+/**
+ * Valida um código de cupom de desconto contra o banco de dados.
+ *
+ * Checagens realizadas em ordem:
+ * 1. Existência do cupom (case-insensitive, trimmed).
+ * 2. Status ativo (`isActive`).
+ * 3. Data de expiração (`expiresAt`).
+ * 4. Limite de usos (`maxUses` vs `usageCount`).
+ * 5. Valor mínimo do pedido (`minOrderValue`).
+ *
+ * Cálculo do desconto:
+ * - PERCENTAGE: `subtotal * (discountValue / 100)`
+ * - FIXED: `min(subtotal, discountValue)` (nunca excede o subtotal).
+ *
+ * @param code - Código do cupom informado pelo usuário.
+ * @param subtotal - Valor subtotal do pedido para validação de mínimo e cálculo.
+ * @returns Objeto com `valid`, `discountAmount`, `code`, `type`, `value` e `id`.
+ */
 export async function validateCoupon(code: string, subtotal: number) {
   try {
     const couponCode = code.toUpperCase().trim()
@@ -27,7 +46,7 @@ export async function validateCoupon(code: string, subtotal: number) {
 
     const minOrderValue = coupon.minOrderValue ? Number(coupon.minOrderValue) : 0
     if (minOrderValue > 0 && subtotal < minOrderValue) {
-      return { valid: false, error: `O valor mínimo para este cupom é R$ ${minOrderValue.toFixed(2).replace('.', ',')}.` }
+      return { valid: false, error: `O valor mínimo para este cupom é ${formatCurrency(minOrderValue)}.` }
     }
 
     const discountValue = Number(coupon.discountValue)
@@ -47,7 +66,7 @@ export async function validateCoupon(code: string, subtotal: number) {
       value: discountValue,
       id: coupon.id
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return { valid: false, error: 'Erro ao validar cupom.' }
   }
 }

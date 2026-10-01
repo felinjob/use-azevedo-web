@@ -1,10 +1,9 @@
 'use server'
 
-import { PrismaClient, OrderStatus } from '@prisma/client'
+import { OrderStatus } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-
-const prisma = new PrismaClient()
 
 interface UpdateOrderStatusInput {
   orderId: string

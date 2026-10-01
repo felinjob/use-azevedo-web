@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { PaymentMethod } from '@prisma/client';
+import { PaymentMethod, Prisma } from '@prisma/client';
 import crypto from 'crypto';
 
+/**
+ * Webhook handler para notificações de pagamento da InfinitePay.
+ *
+ * Segurança:
+ * 1. Valida assinatura HMAC-SHA256 do payload usando `INFINITEPAY_WEBHOOK_SECRET`.
+ * 2. Usa `crypto.timingSafeEqual` para prevenir timing attacks.
+ *
+ * Fluxo de Negócio (quando assinatura é válida):
+ * - Localiza o pedido pelo `order_nsu` (orderNumber).
+ * - Se pedido existe e não está PAID, executa transaction atômica:
+ *   - Atualiza Order → status PAID.
+ *   - Upsert Payment com método (PIX/CREDIT_CARD), transactionId e metadata.
+ *   - Decrementa estoque de cada variante nos OrderItems.
+ *
+ * @returns 200 com `{ received: true }` se processado com sucesso.
+ */
 export async function POST(req: NextRequest) {
   try {
     // 1. Obter o payload cru (raw) como texto para garantir a precisão da assinatura HMAC
@@ -58,7 +74,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (order && order.status !== 'PAID') {
-      await prisma.$transaction(async (tx: any) => {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         // Update Order
         await tx.order.update({
           where: { id: order.id },

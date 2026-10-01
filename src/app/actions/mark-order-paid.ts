@@ -1,10 +1,9 @@
 'use server'
+import { Prisma } from '@prisma/client'
 
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-
-const prisma = new PrismaClient()
 
 export async function markOrderAsPaid(orderNumber: string) {
   const supabase = await createClient()
@@ -28,7 +27,7 @@ export async function markOrderAsPaid(orderNumber: string) {
       return { success: false, error: 'O pedido já está pago.' }
     }
 
-    await prisma.$transaction(async (tx: any) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Update Order
       await tx.order.update({
         where: { id: order.id },

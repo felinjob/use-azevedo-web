@@ -46,6 +46,8 @@ AGENTS.md
 CLAUDE.md
 skills-lock.json
 erros.txt
+.gemini/
+.ia/
 
 
 .vercel

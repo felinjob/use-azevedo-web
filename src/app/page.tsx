@@ -1,7 +1,7 @@
 import Topbar from '@/components/layout/Topbar'
 import Header from '@/components/layout/Header'
-import Hero from '@/components/home/Hero'
-import CategoryStories from '@/components/home/CategoryStories'
+import HomeHeroBanner from '@/components/home/HomeHeroBanner'
+import HomeFeaturedProducts from '@/components/home/HomeFeaturedProducts'
 import ProductCard from '@/components/products/ProductCard'
 import Footer from '@/components/layout/Footer'
 import prisma from '@/lib/prisma'
@@ -9,6 +9,8 @@ import Link from 'next/link'
 import { Prisma } from '@prisma/client'
 import { X, Sparkles, SlidersHorizontal, ArrowLeft } from 'lucide-react'
 import PaginationControls from '@/components/ui/PaginationControls'
+import { PAGE_SIZE, AVAILABLE_SIZES } from '@/lib/constants'
+import { serializeProduct, type SerializedProduct } from '@/lib/serializers'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +30,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const { filtro, disponibilidade, categoria, busca, tamanho, page } = resolvedSearchParams || {}
 
   const currentPage = Math.max(1, Number(page) || 1)
-  const pageSize = 24
+  const pageSize = PAGE_SIZE
 
   const where: Prisma.ProductWhereInput = { active: true }
 
@@ -64,7 +66,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   const orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' }
 
-  const [totalProducts, products, highlights, featuredProducts] = await Promise.all([
+  const [totalProducts, products] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
@@ -76,29 +78,12 @@ export default async function Home({ searchParams }: HomePageProps) {
       take: isCatalogView ? pageSize : 4,
       skip: isCatalogView ? (currentPage - 1) * pageSize : 0,
     }),
-    prisma.bannerHighlight.findMany({
-      where: { active: true },
-      orderBy: { order: 'asc' },
-    }),
-    !isCatalogView ? prisma.product.findMany({
-      where: { active: true, featured: true },
-      orderBy: { createdAt: 'asc' },
-      include: {
-        category: true,
-        variants: true,
-      },
-      take: 4,
-    }) : Promise.resolve([]),
   ])
 
   const totalPages = Math.ceil(totalProducts / pageSize)
 
   // Fix: Next.js cannot pass Prisma Decimal objects to Client Components. Serialize them to primitive types.
-  const serializedProducts = JSON.parse(JSON.stringify(products))
-  const serializedFeaturedProducts = JSON.parse(JSON.stringify(featuredProducts))
-
-  const heroSlides = highlights.filter((h) => h.type === 'HERO_SLIDE')
-  const storyCircles = highlights.filter((h) => h.type === 'STORY_CIRCLE')
+  const serializedProducts = products.map(serializeProduct)
 
   let title = 'Lançamentos'
   let activeFilterLabel = ''
@@ -130,7 +115,7 @@ export default async function Home({ searchParams }: HomePageProps) {
     activeFilterLabel = `Tamanho ${tamanho}`
   }
 
-  const sizes = ['44', '46', '48', '50', '52', '54', '56']
+  const sizes = AVAILABLE_SIZES
 
   return (
     <div className="min-h-screen bg-[var(--color-brand-canvas)] font-sans">
@@ -138,11 +123,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       <Header />
       
       <main>
-        {/* Banner Hero completo apenas quando nenhum filtro estiver ativo */}
-        {!isCatalogView && <Hero slides={heroSlides} />}
-        
-        {/* Círculos Stories de Categorias */}
-        <CategoryStories stories={storyCircles} />
+        <HomeHeroBanner isCatalogView={isCatalogView} />
 
         {/* Banner Editorial Compacto quando um filtro estiver ativo */}
         {isFiltered && (
@@ -238,7 +219,7 @@ export default async function Home({ searchParams }: HomePageProps) {
             {serializedProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
-                  {serializedProducts.map((product: any) => (
+                  {serializedProducts.map((product: SerializedProduct) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
@@ -283,36 +264,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         </section>
 
         {/* Seção Destaques / Mais Vendidos (Visível apenas se não houver filtros) */}
-        {!isCatalogView && serializedFeaturedProducts.length > 0 && (
-          <section className="py-12 sm:py-16 bg-[var(--color-brand-offwhite)] border-t border-[var(--color-brand-muted)]/10">
-            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col items-center mb-8 sm:mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[var(--color-brand-dark)] mb-3 text-center">
-                  Destaques da Coleção
-                </h2>
-                <div className="w-16 h-[2px] bg-[var(--color-brand-gold)] mb-4"></div>
-                <p className="text-sm text-[var(--color-brand-muted)] text-center max-w-xl">
-                  As peças mais amadas pelas nossas clientes, com caimento impecável e modelagem que abraça suas curvas.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
-                {serializedFeaturedProducts.map((product: any) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-
-              <div className="mt-10 flex justify-center">
-                <Link 
-                  href="/?categoria=vestidos-e-conjuntos#colecao"
-                  className="bg-[var(--color-brand-dark)] text-white hover:opacity-90 px-8 py-3 text-xs uppercase font-bold tracking-[0.15em] transition-opacity shadow-md"
-                >
-                  Ver Peças Essenciais
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
+        <HomeFeaturedProducts isCatalogView={isCatalogView} />
       </main>
 
       <Footer />

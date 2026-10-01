@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       .getPublicUrl(data.path)
 
     return NextResponse.json({ url: publicUrlData.publicUrl })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload API route error:', error)
     return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 })
   }

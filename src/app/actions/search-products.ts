@@ -30,8 +30,14 @@ export async function searchProducts(query: string): Promise<SearchProductResult
           { category: { name: { contains: cleanQuery, mode: 'insensitive' } } },
         ],
       },
-      include: {
-        category: true,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        images: true,
+        availability: true,
+        category: { select: { name: true } },
       },
       take: 6,
     })

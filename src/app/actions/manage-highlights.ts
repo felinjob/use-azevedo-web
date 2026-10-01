@@ -41,15 +41,15 @@ export async function createHighlight(data: HighlightFormData) {
     revalidatePath('/')
     revalidatePath('/admin/personalizacao')
     return { success: true, highlight }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating banner highlight:', error)
-    return { success: false, error: error.message || 'Erro ao criar o destaque.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao criar o destaque.' }
   }
 }
 
 export async function updateHighlight(id: string, data: Partial<HighlightFormData>) {
   try {
-    const updateData: any = {}
+    const updateData: Partial<HighlightFormData> = {}
     if (data.title !== undefined) updateData.title = data.title.trim()
     if (data.subtitle !== undefined) updateData.subtitle = data.subtitle?.trim() || null
     if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl.trim()
@@ -66,9 +66,9 @@ export async function updateHighlight(id: string, data: Partial<HighlightFormDat
     revalidatePath('/')
     revalidatePath('/admin/personalizacao')
     return { success: true, highlight }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating banner highlight:', error)
-    return { success: false, error: error.message || 'Erro ao atualizar o destaque.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao atualizar o destaque.' }
   }
 }
 
@@ -81,9 +81,9 @@ export async function deleteHighlight(id: string) {
     revalidatePath('/')
     revalidatePath('/admin/personalizacao')
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting banner highlight:', error)
-    return { success: false, error: error.message || 'Erro ao excluir o destaque.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao excluir o destaque.' }
   }
 }
 
@@ -97,8 +97,8 @@ export async function toggleHighlightActive(id: string, currentStatus: boolean) 
     revalidatePath('/')
     revalidatePath('/admin/personalizacao')
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error toggling banner highlight status:', error)
-    return { success: false, error: error.message || 'Erro ao alterar o status do destaque.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao alterar o status do destaque.' }
   }
 }

@@ -1,19 +1,28 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Edit3, ImageOff } from 'lucide-react'
 import ToggleProductButton from '@/components/admin/ToggleProductButton'
-
-const prisma = new PrismaClient()
+import { formatCurrency } from '@/lib/formatters'
 
 export const revalidate = 0
 
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
     orderBy: { createdAt: 'desc' },
-    include: {
-      category: true,
-      variants: true
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      images: true,
+      availability: true,
+      active: true,
+      category: {
+        select: { name: true }
+      },
+      variants: {
+        select: { stockQuantity: true }
+      }
     }
   })
 
@@ -67,7 +76,7 @@ export default async function AdminProductsPage() {
                       <p className="text-xs text-gray-500 mt-1">{product.category.name}</p>
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900">
-                      R$ {Number(product.price).toFixed(2).replace('.', ',')}
+                      {formatCurrency(Number(product.price))}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-block px-2 py-1 text-[10px] uppercase font-bold tracking-wider rounded-sm border ${

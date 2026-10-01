@@ -1,13 +1,13 @@
 'use server'
 
-import { PrismaClient, PaymentMethod, ShippingType } from '@prisma/client'
+import { PaymentMethod, ShippingType } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { CheckoutFormData } from '@/lib/validations/checkout'
 import { CartItem } from '@/lib/store/cart'
 import { validateCoupon } from '@/app/actions/validate-coupon'
 import crypto from 'crypto'
 import { getBaseUrl } from '@/lib/utils'
-
-const prisma = new PrismaClient()
+import { sanitizeDigits, formatPhoneInternational } from '@/lib/formatters'
 
 interface CreateOrderInput {
   formData: CheckoutFormData
@@ -20,6 +20,24 @@ function generateOrderNumber() {
   return `UA-${randomStr}`
 }
 
+/**
+ * Monta o pedido completo, persiste no banco via Prisma Transaction e
+ * gera o link de pagamento na InfinitePay.
+ *
+ * Fluxo:
+ * 1. Valida cupom (se informado) via `validateCoupon`.
+ * 2. Calcula subtotal, desconto e total.
+ * 3. Dentro de uma transaction atômica:
+ *    - Busca ou cria Customer (por CPF → fallback email).
+ *    - Cria Address.
+ *    - Cria Order com items, Payment e dispara checkout na InfinitePay.
+ * 4. Retorna `orderNumber` e `redirectUrl` para o frontend redirecionar.
+ *
+ * @param input.formData - Dados validados do formulário de checkout.
+ * @param input.cartItems - Itens do carrinho com preço, quantidade e variante.
+ * @param input.couponCode - Código do cupom opcional.
+ * @returns Objeto com `success`, `orderNumber` e `redirectUrl`.
+ */
 export async function createOrder({ formData, cartItems, couponCode }: CreateOrderInput) {
   try {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
@@ -47,7 +65,7 @@ export async function createOrder({ formData, cartItems, couponCode }: CreateOrd
     if (formData.shipping.method === 'PICKUP') shippingType = 'PICKUP'
     
     // Clean CPF for DB storage
-    const cleanCpf = formData.customer.cpf.replace(/\D/g, '')
+    const cleanCpf = sanitizeDigits(formData.customer.cpf)
 
     const orderNumber = generateOrderNumber()
 
@@ -57,7 +75,7 @@ export async function createOrder({ formData, cartItems, couponCode }: CreateOrd
         where: { cpf: cleanCpf }
       })
 
-      const cleanPhone = formData.customer.phone.replace(/\D/g, '')
+      const cleanPhone = sanitizeDigits(formData.customer.phone)
 
       if (!customer) {
         // Fallback check by email
@@ -175,7 +193,7 @@ export async function createOrder({ formData, cartItems, couponCode }: CreateOrd
         })
       }
 
-      const formattedPhone = cleanPhone.startsWith('55') ? `+${cleanPhone}` : `+55${cleanPhone}`
+      const formattedPhone = formatPhoneInternational(cleanPhone)
 
       // 6. Create InfinitePay Checkout Link
       const baseUrl = getBaseUrl()

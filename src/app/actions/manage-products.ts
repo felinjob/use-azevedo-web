@@ -1,11 +1,9 @@
 'use server'
 
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import type { ProductFormState } from '@/components/admin/ProductForm'
 import { createClient } from '@/lib/supabase/server'
-
-const prisma = new PrismaClient()
 
 export async function createProduct(data: ProductFormState) {
   const supabase = await createClient()
@@ -65,10 +63,11 @@ export async function createProduct(data: ProductFormState) {
     revalidatePath('/admin/produtos')
     revalidatePath('/')
     return { success: true, productId: product.id }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating product:', error)
-    if (error.code === 'P2002') {
-      const target = error.meta?.target || []
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+      const meta = (error as any).meta
+      const target = meta?.target || []
       const targetStr = Array.isArray(target) ? target.join(',') : String(target)
       if (targetStr.includes('sku')) {
         return { success: false, error: 'O código SKU gerado já existe. Tente salvar novamente.' }
@@ -77,7 +76,7 @@ export async function createProduct(data: ProductFormState) {
         return { success: false, error: 'Já existe um produto cadastrado com essa URL/Slug.' }
       }
     }
-    return { success: false, error: error.message || 'Erro ao criar o produto.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao criar o produto.' }
   }
 }
 
@@ -157,10 +156,11 @@ export async function updateProduct(id: string, data: ProductFormState) {
     revalidatePath(`/produto/${data.slug}`)
     revalidatePath('/')
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating product:', error)
-    if (error.code === 'P2002') {
-      const target = error.meta?.target || []
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+      const meta = (error as any).meta
+      const target = meta?.target || []
       const targetStr = Array.isArray(target) ? target.join(',') : String(target)
       if (targetStr.includes('sku')) {
         return { success: false, error: 'O código SKU gerado já existe. Tente salvar novamente.' }
@@ -169,7 +169,7 @@ export async function updateProduct(id: string, data: ProductFormState) {
         return { success: false, error: 'Já existe um produto cadastrado com essa URL/Slug.' }
       }
     }
-    return { success: false, error: error.message || 'Erro ao atualizar o produto.' }
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao atualizar o produto.' }
   }
 }
 

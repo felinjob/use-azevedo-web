@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import ProductForm, { ProductFormState } from '@/components/admin/ProductForm'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
-
-const prisma = new PrismaClient()
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params

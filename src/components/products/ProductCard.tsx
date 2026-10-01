@@ -3,21 +3,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { Prisma } from '@prisma/client'
 import { useCartStore } from '@/lib/store/cart'
 import { useState } from 'react'
+import type { SerializedProduct } from '@/lib/serializers'
+import { formatCurrency, formatCurrencyValue } from '@/lib/formatters'
 
 interface ProductCardProps {
-  product: {
-    id?: string;
-    slug: string;
-    name: string;
-    price: Prisma.Decimal; 
-    originalPrice?: Prisma.Decimal | null;
-    availability: string;
-    images: string[];
-    variants: { id?: string, size: string, color?: string, colorHex?: string, stockQuantity?: number }[];
-  }
+  product: SerializedProduct
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -26,7 +18,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isReadyToShip = product.availability === 'READY_TO_SHIP'
   const sizes = Array.from(new Set(product.variants.map(v => v.size))).sort()
   const priceNum = Number(product.price)
-  const installmentValue = (priceNum / 12).toFixed(2).replace('.', ',')
+  const installmentValue = formatCurrencyValue(priceNum / 12)
 
   const uniqueColorsMap = new Map<string, string>()
   if (product.variants) {
@@ -137,11 +129,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="mt-1.5 flex flex-col">
           <div className="flex items-center gap-2">
             <span className="text-[15px] md:text-lg font-bold text-[#1A1A1A]">
-              R$ {priceNum.toFixed(2).replace('.', ',')}
+              {formatCurrency(priceNum)}
             </span>
             {product.originalPrice && (
               <span className="text-[11px] md:text-sm text-[#4A4A4A] line-through">
-                R$ {Number(product.originalPrice).toFixed(2).replace('.', ',')}
+                {formatCurrency(Number(product.originalPrice))}
               </span>
             )}
           </div>

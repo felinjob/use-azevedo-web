@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -6,8 +6,7 @@ import { CheckCircle, Truck, MapPin, Smartphone, Receipt, CreditCard } from 'luc
 import Topbar from '@/components/layout/Topbar'
 import OrderClientLogic from './OrderClientLogic'
 import OrderStatusClient from './OrderStatusClient'
-
-const prisma = new PrismaClient()
+import { formatCurrency } from '@/lib/formatters'
 
 interface OrderSuccessPageProps {
   params: Promise<{ orderNumber: string }>
@@ -164,7 +163,7 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
                       <p className="text-xs text-gray-500">Tamanho: {item.variantSize} | Cor: {item.variantColor} | Qtd: {item.quantity}</p>
                     </div>
                     <span className="font-medium text-[var(--color-brand-dark)]">
-                      R$ {Number(item.totalPrice).toFixed(2).replace('.', ',')}
+                      {formatCurrency(Number(item.totalPrice))}
                     </span>
                   </div>
                 ))}
@@ -172,19 +171,19 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
               <div className="border-t border-gray-100 pt-3 space-y-2 text-sm">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>R$ {Number(order.subtotal).toFixed(2).replace('.', ',')}</span>
+                  <span>{formatCurrency(Number(order.subtotal))}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Frete</span>
                   <span>
                     {order.shippingType === 'MOTOBOY_RJ' 
                       ? 'A combinar com a Amanda' 
-                      : `R$ ${Number(order.shippingCost).toFixed(2).replace('.', ',')}`}
+                      : formatCurrency(Number(order.shippingCost))}
                   </span>
                 </div>
                 <div className="flex justify-between font-bold text-lg text-[var(--color-brand-dark)] pt-2">
                   <span>Total</span>
-                  <span>R$ {Number(order.total).toFixed(2).replace('.', ',')}</span>
+                  <span>{formatCurrency(Number(order.total))}</span>
                 </div>
               </div>
             </div>
