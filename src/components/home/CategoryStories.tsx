@@ -21,13 +21,12 @@ export default function CategoryStories({ stories = [] }: CategoryStoriesProps) 
 
   return (
     <section className="bg-[var(--color-brand-canvas)] pt-6 pb-2 border-b border-[var(--color-brand-muted)]/15">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile: scroll horizontal | Desktop (md+): centralizado simétrico com flex-wrap */}
-        <div 
-          className="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 overflow-x-auto md:overflow-visible pb-4 md:pb-2 snap-x scrollbar-none justify-start md:justify-center md:flex-wrap" 
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {stories.map((story) => {
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="w-full overflow-x-auto scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div 
+            className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 px-4 sm:px-6 lg:px-8 pb-4 md:pb-2 snap-x w-fit min-w-full mx-auto md:flex-wrap" 
+          >
+            {stories.map((story) => {
             const targetUrl = story.linkUrl.startsWith('/?') ? `${story.linkUrl}#colecao` : story.linkUrl
             return (
               <Link 
@@ -52,6 +51,7 @@ export default function CategoryStories({ stories = [] }: CategoryStoriesProps) 
               </Link>
             )
           })}
+          </div>
         </div>
       </div>
     </section>

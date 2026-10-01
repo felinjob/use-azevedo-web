@@ -8,6 +8,7 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { Prisma } from '@prisma/client'
 import { X, Sparkles, SlidersHorizontal, ArrowLeft } from 'lucide-react'
+import PaginationControls from '@/components/ui/PaginationControls'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,12 +19,16 @@ interface HomePageProps {
     categoria?: string
     busca?: string
     tamanho?: string
+    page?: string
   }>
 }
 
 export default async function Home({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await searchParams
-  const { filtro, disponibilidade, categoria, busca, tamanho } = resolvedSearchParams || {}
+  const { filtro, disponibilidade, categoria, busca, tamanho, page } = resolvedSearchParams || {}
+
+  const currentPage = Math.max(1, Number(page) || 1)
+  const pageSize = 24
 
   const where: Prisma.ProductWhereInput = { active: true }
 
@@ -55,10 +60,12 @@ export default async function Home({ searchParams }: HomePageProps) {
   }
 
   const isFiltered = Boolean(filtro || disponibilidade || categoria || busca || tamanho)
+  const isCatalogView = Boolean(isFiltered || page)
 
   const orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' }
 
-  const [products, highlights, featuredProducts] = await Promise.all([
+  const [totalProducts, products, highlights, featuredProducts] = await Promise.all([
+    prisma.product.count({ where }),
     prisma.product.findMany({
       where,
       orderBy,
@@ -66,13 +73,14 @@ export default async function Home({ searchParams }: HomePageProps) {
         category: true,
         variants: true,
       },
-      take: isFiltered ? 24 : 4,
+      take: isCatalogView ? pageSize : 4,
+      skip: isCatalogView ? (currentPage - 1) * pageSize : 0,
     }),
     prisma.bannerHighlight.findMany({
       where: { active: true },
       orderBy: { order: 'asc' },
     }),
-    !isFiltered ? prisma.product.findMany({
+    !isCatalogView ? prisma.product.findMany({
       where: { active: true, featured: true },
       orderBy: { createdAt: 'asc' },
       include: {
@@ -83,6 +91,8 @@ export default async function Home({ searchParams }: HomePageProps) {
     }) : Promise.resolve([]),
   ])
 
+  const totalPages = Math.ceil(totalProducts / pageSize)
+
   // Fix: Next.js cannot pass Prisma Decimal objects to Client Components. Serialize them to primitive types.
   const serializedProducts = JSON.parse(JSON.stringify(products))
   const serializedFeaturedProducts = JSON.parse(JSON.stringify(featuredProducts))
@@ -92,6 +102,10 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   let title = 'Lançamentos'
   let activeFilterLabel = ''
+
+  if (!isFiltered && isCatalogView) {
+    title = 'Nossa Coleção'
+  }
 
   if (filtro === 'novidades') {
     title = 'Novidades'
@@ -125,7 +139,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       
       <main>
         {/* Banner Hero completo apenas quando nenhum filtro estiver ativo */}
-        {!isFiltered && <Hero slides={heroSlides} />}
+        {!isCatalogView && <Hero slides={heroSlides} />}
         
         {/* Círculos Stories de Categorias */}
         <CategoryStories stories={storyCircles} />
@@ -229,15 +243,24 @@ export default async function Home({ searchParams }: HomePageProps) {
                   ))}
                 </div>
                 
-                {!isFiltered && (
+                {!isCatalogView && (
                   <div className="mt-10 flex justify-center">
                     <Link 
-                      href="/?filtro=novidades#colecao"
+                      href="/?page=2#colecao"
                       className="border border-[var(--color-brand-green-deep)] text-[var(--color-brand-green-deep)] hover:bg-[var(--color-brand-green-deep)] hover:text-white px-8 py-3 text-xs uppercase font-bold tracking-[0.15em] transition-colors"
                     >
-                      Ver todos os Lançamentos
+                      Ver toda a coleção
                     </Link>
                   </div>
+                )}
+
+                {isCatalogView && (
+                  <PaginationControls 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalProducts}
+                    pageSize={pageSize}
+                  />
                 )}
               </>
             ) : (
@@ -260,7 +283,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         </section>
 
         {/* Seção Destaques / Mais Vendidos (Visível apenas se não houver filtros) */}
-        {!isFiltered && serializedFeaturedProducts.length > 0 && (
+        {!isCatalogView && serializedFeaturedProducts.length > 0 && (
           <section className="py-12 sm:py-16 bg-[var(--color-brand-offwhite)] border-t border-[var(--color-brand-muted)]/10">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col items-center mb-8 sm:mb-12">

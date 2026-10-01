@@ -1,64 +1,39 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { UploadCloud, X, Loader2, GripVertical } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { UploadCloud, X, Loader2, GripVertical, RefreshCw, WifiOff, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
+import { useImageUploadQueue } from '@/hooks/useImageUploadQueue'
 
 interface ImageUploaderProps {
   images: string[]
   onChange: (images: string[]) => void
+  onQueueStatusChange?: (isPending: boolean, completed: number, total: number, urls: string[]) => void
 }
 
-export default function ImageUploader({ images, onChange }: ImageUploaderProps) {
-  const [isUploading, setIsUploading] = useState(false)
+export default function ImageUploader({ images, onChange, onQueueStatusChange }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
+  const { queue, addImagesToQueue, removeImageFromQueue, retryUpload } = useImageUploadQueue()
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (onQueueStatusChange) {
+      const isPending = queue.some(img => img.status === 'uploading' || img.status === 'waiting_network' || img.status === 'idle')
+      const completed = queue.filter(img => img.status === 'success').length
+      const urls = queue.filter(img => img.status === 'success' && img.publicUrl).map(img => img.publicUrl as string)
+      onQueueStatusChange(isPending, completed, queue.length, urls)
+    }
+  }, [queue, onQueueStatusChange])
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
-
-    setIsUploading(true)
-    const newUrls: string[] = []
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('bucket', 'products')
-
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        })
-        const data = await res.json()
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Erro ao fazer upload da imagem.')
-        }
-        
-        if (data.url) {
-          newUrls.push(data.url)
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error)
-        alert('Erro ao fazer upload da imagem.')
-      }
-    }
-
-    onChange([...images, ...newUrls])
-    setIsUploading(false)
+    addImagesToQueue(Array.from(files))
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
   }
 
-  const handleRemove = async (index: number) => {
-    // Note: We don't delete from storage here to prevent accidental deletion 
-    // before the form is saved, we just remove from the array.
+  const handleRemove = (index: number) => {
     const newImages = [...images]
     newImages.splice(index, 1)
     onChange(newImages)
@@ -84,18 +59,9 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
         className="border-2 border-dashed border-gray-300 rounded-sm p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer flex flex-col items-center"
         onClick={() => fileInputRef.current?.click()}
       >
-        {isUploading ? (
-          <div className="flex flex-col items-center text-gray-500">
-            <Loader2 className="w-8 h-8 animate-spin mb-2" />
-            <span className="text-sm">Enviando imagens...</span>
-          </div>
-        ) : (
-          <>
-            <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
-            <p className="text-sm text-gray-600 font-medium">Clique para fazer upload das fotos</p>
-            <p className="text-xs text-gray-400 mt-1">PNG, JPG ou WEBP. Múltiplos arquivos permitidos.</p>
-          </>
-        )}
+        <UploadCloud className="w-8 h-8 text-gray-400 mb-2" />
+        <p className="text-sm text-gray-600 font-medium">Clique para fazer upload das fotos</p>
+        <p className="text-xs text-gray-400 mt-1">PNG, JPG ou WEBP. Múltiplos arquivos permitidos.</p>
         <input 
           type="file" 
           ref={fileInputRef} 
@@ -107,7 +73,7 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
       </div>
 
       {/* Gallery Preview */}
-      {images.length > 0 && (
+      {(images.length > 0 || queue.length > 0) && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((url, index) => (
             <div key={url} className="relative aspect-[3/4] bg-gray-100 border border-gray-200 group rounded-sm overflow-hidden">
@@ -129,6 +95,7 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                 <div className="flex justify-end">
                   <button 
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); handleRemove(index) }}
                     className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
                   >
@@ -138,6 +105,7 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
                 
                 <div className="flex justify-between items-center bg-black/60 rounded p-1">
                   <button 
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); moveImage(index, 'up') }}
                     disabled={index === 0}
                     className="text-white disabled:opacity-30 hover:text-[var(--color-brand-gold)] px-1"
@@ -146,6 +114,7 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
                   </button>
                   <GripVertical className="w-4 h-4 text-gray-400" />
                   <button 
+                    type="button"
                     onClick={(e) => { e.stopPropagation(); moveImage(index, 'down') }}
                     disabled={index === images.length - 1}
                     className="text-white disabled:opacity-30 hover:text-[var(--color-brand-gold)] px-1"
@@ -154,6 +123,75 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
                   </button>
                 </div>
               </div>
+            </div>
+          ))}
+
+          {/* Queue Items */}
+          {queue.map((item, index) => (
+            <div key={item.id} className="relative aspect-[3/4] bg-gray-100 border border-gray-200 rounded-sm overflow-hidden flex flex-col">
+              <div className="relative flex-1">
+                <Image 
+                  src={item.previewUrl}
+                  alt={`Upload ${index}`}
+                  fill
+                  className={`object-cover ${item.status === 'success' ? '' : 'opacity-60'}`}
+                />
+                
+                {/* Badges */}
+                <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
+                  {item.status === 'uploading' && (
+                    <div className="bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      {item.progress}%
+                    </div>
+                  )}
+                  {item.status === 'waiting_network' && (
+                    <div className="bg-orange-500/90 text-white text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1">
+                      <WifiOff className="w-3 h-3" /> Rede
+                    </div>
+                  )}
+                  {item.status === 'success' && (
+                    <div className="bg-[var(--color-brand-green-deep)] text-white text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Pronta
+                    </div>
+                  )}
+                  {item.status === 'error' && (
+                    <div className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-sm flex flex-col gap-1">
+                      <span className="flex items-center gap-1"><X className="w-3 h-3" /> Erro</span>
+                    </div>
+                  )}
+
+                  <button 
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); removeImageFromQueue(item.id) }}
+                    className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors ml-auto shadow-md"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+
+                {item.status === 'error' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); retryUpload(item.id) }}
+                      className="bg-white text-red-500 px-3 py-1.5 rounded-sm text-xs font-bold flex items-center gap-1 hover:bg-gray-100"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Tentar Novamente
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {/* Progress Bar */}
+              {item.status !== 'success' && item.status !== 'error' && (
+                <div className="h-1.5 w-full bg-gray-200">
+                  <div 
+                    className="h-full bg-[var(--color-brand-green-deep)] transition-all duration-300"
+                    style={{ width: `${item.progress}%` }}
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -9,7 +9,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'xhpfzyaupvlvnaqbsgwm.supabase.co',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'useazevedo.vercel.app',
       },
     ],
   },

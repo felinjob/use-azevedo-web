@@ -62,6 +62,12 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
   
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [queueStatus, setQueueStatus] = useState({
+    isPending: false,
+    completed: 0,
+    total: 0,
+    urls: [] as string[]
+  })
 
   const [formData, setFormData] = useState<ProductFormState>(initialData || {
     name: '',
@@ -193,21 +199,36 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (queueStatus.isPending) return
     setIsSaving(true)
     setError('')
 
     try {
-      if (formData.images.length === 0) {
-        throw new Error('É necessário pelo menos uma imagem.')
+      const allRawImages = [...formData.images, ...queueStatus.urls]
+      
+      const validImages = allRawImages.filter((img) => {
+        return Boolean(
+          img &&
+          typeof img === 'string' &&
+          img.trim().length > 0 &&
+          !img.includes('undefined') &&
+          !img.includes('null')
+        )
+      })
+
+      if (validImages.length === 0) {
+        throw new Error('É necessário pelo menos uma imagem válida (aguarde o fim dos uploads se necessário).')
       }
       
-      if (formData.variants.length === 0) {
+      const payload = { ...formData, images: validImages }
+
+      if (payload.variants.length === 0) {
         throw new Error('É necessário adicionar pelo menos um tamanho a uma cor.')
       }
 
       // Check for SKU uniqueness inside the form payload
       const skuSet = new Set()
-      for (const v of formData.variants) {
+      for (const v of payload.variants) {
         if (skuSet.has(v.sku)) {
           throw new Error(`SKU duplicado detectado: ${v.sku}`)
         }
@@ -215,8 +236,8 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
       }
 
       const res = isEditing 
-        ? await updateProduct(formData.id!, formData)
-        : await createProduct(formData)
+        ? await updateProduct(payload.id!, payload)
+        : await createProduct(payload)
 
       if (!res.success) {
         throw new Error(res.error)
@@ -382,6 +403,9 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
         <ImageUploader 
           images={formData.images} 
           onChange={(images) => setFormData({ ...formData, images })}
+          onQueueStatusChange={(isPending, completed, total, urls) => {
+            setQueueStatus({ isPending, completed, total, urls })
+          }}
         />
       </div>
 
@@ -562,10 +586,16 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
       <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-white border-t border-gray-200 p-4 px-6 md:px-8 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] z-40 flex justify-end">
         <button 
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || queueStatus.isPending}
           className="bg-[var(--color-brand-dark)] text-white px-8 py-3.5 font-bold tracking-widest uppercase hover:bg-black transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-md w-full md:w-auto"
         >
-          {isSaving ? 'Salvando...' : isEditing ? 'Atualizar Produto' : 'Cadastrar Produto'}
+          {isSaving 
+            ? 'Salvando...' 
+            : queueStatus.isPending 
+              ? `Enviando imagens (${queueStatus.completed} de ${queueStatus.total} concluídas)...`
+              : isEditing 
+                ? 'Atualizar Produto' 
+                : 'Cadastrar Produto'}
         </button>
       </div>
     </form>

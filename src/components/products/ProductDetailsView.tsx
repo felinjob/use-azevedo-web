@@ -15,7 +15,18 @@ interface ProductDetailsViewProps {
 }
 
 export default function ProductDetailsView({ product }: ProductDetailsViewProps) {
-  const [activeImage, setActiveImage] = useState(product.images[0] || '')
+  const validImages = (product.images || []).filter((img) => {
+    const url = typeof img === 'string' ? img : (img as any)?.url;
+    return Boolean(
+      url &&
+      typeof url === 'string' &&
+      url.trim().length > 0 &&
+      !url.includes('undefined') &&
+      !url.includes('null')
+    );
+  }) as string[];
+
+  const [activeImage, setActiveImage] = useState(validImages[0] || '')
   
   const hasOnlyTamanhoUnico = product.variants.length === 1 && product.variants[0].size === 'Tamanho Único'
   const [selectedSize, setSelectedSize] = useState<string>(hasOnlyTamanhoUnico ? 'Tamanho Único' : '')
@@ -100,9 +111,9 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
       {/* Image Gallery */}
       <div className="flex flex-col-reverse md:flex-row gap-4">
         {/* Thumbnails */}
-        {product.images.length > 1 && (
+        {validImages.length > 1 && (
           <div className="flex md:flex-col gap-3 overflow-x-auto md:w-24 shrink-0 no-scrollbar">
-            {product.images.map((img, idx) => (
+            {validImages.map((img, idx) => (
               <button 
                 key={idx} 
                 onClick={() => setActiveImage(img)}
@@ -111,7 +122,15 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
                   activeImage === img ? "border-[var(--color-brand-green-deep)]" : "border-transparent opacity-70 hover:opacity-100"
                 )}
               >
-                <Image src={img} alt={`Thumbnail ${idx}`} fill className="object-cover" />
+                <Image 
+                  src={img} 
+                  alt={`Thumbnail ${idx}`} 
+                  fill 
+                  className="object-cover" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
               </button>
             ))}
           </div>
@@ -135,6 +154,9 @@ export default function ProductDetailsView({ product }: ProductDetailsViewProps)
                 className="object-cover"
                 priority
                 sizes="(min-width: 1024px) 50vw, 100vw"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
           )}
