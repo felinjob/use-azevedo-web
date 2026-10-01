@@ -65,7 +65,62 @@ export default function MobileNavDrawer() {
             <div className="flex-1 overflow-y-auto px-5 py-6 space-y-6">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-brand-ivory)]/50 block mb-3">
-                  Coleção & Departamentos
+                  Departamentos
+                </span>
+                <nav className="space-y-1">
+                  <Link
+                    href="/?categoria=vestidos-e-vestidos-curtos#colecao"
+                    onClick={closeMenu}
+                    className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
+                  >
+                    <span>Vestidos & Vestidos Curtos</span>
+                    <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
+                  </Link>
+
+                  <Link
+                    href="/?categoria=cropped-e-blusas#colecao"
+                    onClick={closeMenu}
+                    className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
+                  >
+                    <span>Croppeds & Blusas</span>
+                    <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
+                  </Link>
+
+                  <Link
+                    href="/?categoria=macaquinhos-e-conjuntos#colecao"
+                    onClick={closeMenu}
+                    className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
+                  >
+                    <span>Macaquinhos & Conjuntos</span>
+                    <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
+                  </Link>
+
+                  <Link
+                    href="/?categoria=saias-calcas-e-shorts#colecao"
+                    onClick={closeMenu}
+                    className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
+                  >
+                    <span>Saias, Calças & Shorts</span>
+                    <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
+                  </Link>
+
+                  <Link
+                    href="/#colecao"
+                    onClick={closeMenu}
+                    className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
+                  >
+                    <span>Ver Todas as Peças</span>
+                    <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
+                  </Link>
+                </nav>
+              </div>
+
+              {/* Linha Divisória */}
+              <div className="border-t border-[var(--color-brand-green-surface)]" />
+
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-brand-ivory)]/50 block mb-3">
+                  Disponibilidade & Destaques
                 </span>
                 <nav className="space-y-1">
                   <Link
@@ -77,15 +132,6 @@ export default function MobileNavDrawer() {
                       <Sparkles className="w-4 h-4 text-[var(--color-brand-ivory)]/80" />
                       Novidades
                     </span>
-                    <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
-                  </Link>
-
-                  <Link
-                    href="/?categoria=vestidos-e-conjuntos#colecao"
-                    onClick={closeMenu}
-                    className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
-                  >
-                    <span>Vestidos & Conjuntos</span>
                     <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
                   </Link>
 
@@ -106,7 +152,7 @@ export default function MobileNavDrawer() {
                     onClick={closeMenu}
                     className="flex items-center justify-between py-2.5 text-sm font-medium tracking-wide text-[var(--color-brand-ivory)] hover:text-[var(--color-brand-ivory)]/80 transition-colors border-b border-[var(--color-brand-green-surface)]/60"
                   >
-                    <span>Sob Encomenda (Ateliê)</span>
+                    <span>Sob Encomenda</span>
                     <ChevronRight className="w-4 h-4 text-[var(--color-brand-ivory)]/40" />
                   </Link>
 

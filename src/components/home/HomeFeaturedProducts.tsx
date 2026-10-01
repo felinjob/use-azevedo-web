@@ -41,7 +41,7 @@ export default async function HomeFeaturedProducts({ isCatalogView }: { isCatalo
 
         <div className="mt-10 flex justify-center">
           <Link 
-            href="/?categoria=vestidos-e-conjuntos#colecao"
+            href="/?categoria=vestidos-e-vestidos-curtos#colecao"
             className="bg-[var(--color-brand-dark)] text-white hover:opacity-90 px-8 py-3 text-xs uppercase font-bold tracking-[0.15em] transition-opacity shadow-md"
           >
             Ver Peças Essenciais

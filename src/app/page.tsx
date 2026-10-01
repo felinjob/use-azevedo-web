@@ -101,9 +101,18 @@ export default async function Home({ searchParams }: HomePageProps) {
   } else if (disponibilidade === 'MADE_TO_ORDER') {
     title = 'Peças Sob Encomenda'
     activeFilterLabel = 'Sob Encomenda'
-  } else if (categoria === 'vestidos-e-conjuntos') {
-    title = 'Vestidos & Conjuntos'
-    activeFilterLabel = 'Vestidos & Conjuntos'
+  } else if (categoria === 'vestidos-e-vestidos-curtos') {
+    title = 'Vestidos & Vestidos Curtos'
+    activeFilterLabel = 'Vestidos & Vestidos Curtos'
+  } else if (categoria === 'cropped-e-blusas') {
+    title = 'Croppeds & Blusas'
+    activeFilterLabel = 'Croppeds & Blusas'
+  } else if (categoria === 'macaquinhos-e-conjuntos') {
+    title = 'Macaquinhos & Conjuntos'
+    activeFilterLabel = 'Macaquinhos & Conjuntos'
+  } else if (categoria === 'saias-calcas-e-shorts') {
+    title = 'Saias, Calças & Shorts'
+    activeFilterLabel = 'Saias, Calças & Shorts'
   } else if (categoria) {
     title = 'Coleção Selecionada'
     activeFilterLabel = categoria

@@ -108,7 +108,22 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
     const name = e.target.value
     if (!isEditing) {
       const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-      setFormData({ ...formData, name, slug })
+      
+      let suggestedCategoryId = formData.categoryId
+      const lowerName = name.toLowerCase()
+      if (!suggestedCategoryId || categories[0]?.id === suggestedCategoryId) {
+        if (lowerName.includes('vestido')) {
+          suggestedCategoryId = categories.find(c => c.name.toLowerCase().includes('vestido'))?.id || suggestedCategoryId
+        } else if (lowerName.includes('cropped') || lowerName.includes('blusa')) {
+          suggestedCategoryId = categories.find(c => c.name.toLowerCase().includes('cropped'))?.id || suggestedCategoryId
+        } else if (lowerName.includes('conjunto') || lowerName.includes('macaquinho')) {
+          suggestedCategoryId = categories.find(c => c.name.toLowerCase().includes('conjunto'))?.id || suggestedCategoryId
+        } else if (lowerName.includes('saia') || lowerName.includes('short') || lowerName.includes('calça')) {
+          suggestedCategoryId = categories.find(c => c.name.toLowerCase().includes('saia'))?.id || suggestedCategoryId
+        }
+      }
+
+      setFormData({ ...formData, name, slug, categoryId: suggestedCategoryId })
     } else {
       setFormData({ ...formData, name })
     }
@@ -282,19 +297,30 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
               className="w-full text-sm border-gray-300 border p-2 focus:border-[var(--color-brand-green-deep)] outline-none bg-gray-50 rounded-sm" 
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">Categoria</label>
-            <select 
-              required
-              value={formData.categoryId}
-              onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
-              className="w-full text-sm border-gray-300 border p-2 focus:border-[var(--color-brand-green-deep)] outline-none rounded-sm"
-            >
-              <option value="">Selecione...</option>
-              {categories.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+          <div className="md:col-span-2">
+            <label className="block text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">Categoria do Produto</label>
+            <div className="flex flex-wrap gap-3">
+              {categories.map(c => {
+                const isSelected = formData.categoryId === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, categoryId: c.id })}
+                    className={`px-4 py-2 text-sm font-medium rounded-full border transition-colors ${
+                      isSelected
+                        ? 'bg-[var(--color-brand-green-deep)] text-white border-[var(--color-brand-green-deep)]'
+                        : 'bg-white text-[var(--color-brand-dark)] border-gray-200 hover:border-[var(--color-brand-green-deep)] hover:bg-[var(--color-brand-green-deep)]/5'
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                );
+              })}
+            </div>
+            {!formData.categoryId && (
+              <p className="text-red-500 text-xs mt-2">Por favor, selecione uma categoria.</p>
+            )}
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
