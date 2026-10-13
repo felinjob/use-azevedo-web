@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { UploadCloud, X, Loader2, GripVertical, RefreshCw, WifiOff, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import { useImageUploadQueue } from '@/hooks/useImageUploadQueue'
@@ -15,14 +15,22 @@ export default function ImageUploader({ images, onChange, onQueueStatusChange }:
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { queue, addImagesToQueue, removeImageFromQueue, retryUpload } = useImageUploadQueue()
 
+  // A callback vem inline do pai (nova a cada render). Mantê-la num ref evita
+  // um loop: efeito → setState no pai → nova callback → efeito de novo.
+  const onQueueStatusChangeRef = useRef(onQueueStatusChange)
   useEffect(() => {
-    if (onQueueStatusChange) {
+    onQueueStatusChangeRef.current = onQueueStatusChange
+  })
+
+  useEffect(() => {
+    const cb = onQueueStatusChangeRef.current
+    if (cb) {
       const isPending = queue.some(img => img.status === 'uploading' || img.status === 'waiting_network' || img.status === 'idle')
       const completed = queue.filter(img => img.status === 'success').length
       const urls = queue.filter(img => img.status === 'success' && img.publicUrl).map(img => img.publicUrl as string)
-      onQueueStatusChange(isPending, completed, queue.length, urls)
+      cb(isPending, completed, queue.length, urls)
     }
-  }, [queue, onQueueStatusChange])
+  }, [queue])
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -171,7 +179,10 @@ export default function ImageUploader({ images, onChange, onQueueStatusChange }:
                 </div>
 
                 {item.status === 'error' && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50 p-2 text-center">
+                    {item.errorMessage && (
+                      <p className="text-white text-[11px] leading-tight font-medium">{item.errorMessage}</p>
+                    )}
                     <button 
                       type="button"
                       onClick={(e) => { e.stopPropagation(); retryUpload(item.id) }}

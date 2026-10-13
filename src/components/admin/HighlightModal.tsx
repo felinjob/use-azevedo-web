@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { HighlightType } from '@prisma/client'
-import { X, UploadCloud, Loader2, Image as ImageIcon } from 'lucide-react'
+import { X, UploadCloud, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import { createHighlight, updateHighlight, HighlightFormData } from '@/app/actions/manage-highlights'
+import { compressImage } from '@/lib/compress-image'
 
 interface HighlightModalProps {
   isOpen: boolean
@@ -53,7 +53,6 @@ export default function HighlightModal({
   const [errorMessage, setErrorMessage] = useState('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
 
   useEffect(() => {
     if (initialData) {
@@ -87,7 +86,7 @@ export default function HighlightModal({
 
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', await compressImage(file))
       formData.append('bucket', 'banners')
 
       const res = await fetch('/api/upload', {
