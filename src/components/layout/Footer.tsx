@@ -13,7 +13,14 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <div className="mb-4">
-              <Image src="/logo-ua.png" alt="Loja Use Azevedo" width={80} height={80} className="object-contain" />
+              <Image 
+                src="/logo-ua.png" 
+                alt="Loja Use Azevedo" 
+                width={80} 
+                height={80} 
+                className="object-contain" 
+                style={{ width: '80px', height: 'auto' }}
+              />
             </div>
             <p className="text-sm font-light text-[var(--color-brand-ivory)]/60 leading-relaxed mb-6">
               A marca que entende as suas curvas. Moda mid e plus size com modelagem exclusiva, alfaiataria premium e caimento impecável.

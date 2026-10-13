@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <header className="bg-[var(--color-brand-green-deep)] backdrop-blur-md text-[var(--color-brand-ivory)] sticky top-0 z-40 border-b border-[var(--color-brand-green-surface)]">
       <div className="container mx-auto px-4 py-3 sm:py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4 lg:gap-8">
           
           {/* Mobile Menu Toggle */}
           <div className="lg:hidden flex-1">
@@ -31,29 +31,29 @@ export default function Header() {
           </div>
 
           {/* Logo */}
-          <div className="flex flex-1 items-center justify-center lg:justify-start">
+          <div className="flex shrink-0 items-center justify-center lg:justify-start">
             <Link href="/" className="flex flex-row items-center gap-2.5 hover:opacity-90 transition-opacity">
               <Image 
                 src="/logo-ua.png" 
                 alt="Monograma UA" 
-                width={40} 
-                height={40} 
-                className="hidden lg:block w-8 h-auto md:w-10 object-contain"
-                style={{ width: 'auto', height: 'auto' }}
+                width={36} 
+                height={36} 
+                className="hidden lg:block w-9 h-9 object-contain shrink-0"
+                style={{ width: '36px', height: '36px' }}
               />
-              <span className="font-serif text-xl md:text-2xl font-normal tracking-[0.25em] uppercase text-[var(--color-brand-ivory)]">
+              <span className="font-serif text-xl md:text-2xl font-normal tracking-[0.25em] uppercase text-[var(--color-brand-ivory)] whitespace-nowrap">
                 Use Azevedo
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center justify-center flex-[2] gap-8 text-[13px] uppercase tracking-[0.12em] font-medium">
-            <Link href="/?filtro=novidades#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Novidades</Link>
+          <nav className="hidden lg:flex items-center justify-center flex-1 gap-6 xl:gap-8 text-[12px] xl:text-[13px] uppercase tracking-[0.1em] xl:tracking-[0.12em] font-medium whitespace-nowrap">
+            <Link href="/?filtro=novidades#colecao" className="whitespace-nowrap relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Novidades</Link>
             
             {/* Dropdown Nossas Peças */}
             <div className="group relative">
-              <button className="relative py-1 flex items-center gap-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] group-hover:after:w-full after:transition-all after:duration-300">
+              <button className="whitespace-nowrap relative py-1 flex items-center gap-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] group-hover:after:w-full after:transition-all after:duration-300">
                 NOSSAS PEÇAS <ChevronDown className="w-4 h-4" />
               </button>
               
@@ -69,13 +69,13 @@ export default function Header() {
               </div>
             </div>
 
-            <Link href="/?disponibilidade=READY_TO_SHIP#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Pronta Entrega</Link>
-            <Link href="/?disponibilidade=MADE_TO_ORDER#colecao" className="relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Sob Encomenda</Link>
-            <button onClick={openSizeGuide} className="relative py-1 opacity-85 hover:opacity-100 transition-opacity uppercase tracking-[0.12em] after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Guia de Medidas</button>
+            <Link href="/?disponibilidade=READY_TO_SHIP#colecao" className="whitespace-nowrap relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Pronta Entrega</Link>
+            <Link href="/?disponibilidade=MADE_TO_ORDER#colecao" className="whitespace-nowrap relative py-1 opacity-85 hover:opacity-100 transition-opacity after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Sob Encomenda</Link>
+            <button onClick={openSizeGuide} className="whitespace-nowrap relative py-1 opacity-85 hover:opacity-100 transition-opacity uppercase tracking-[0.1em] xl:tracking-[0.12em] after:content-[''] after:absolute after:w-0 after:h-[1px] after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--color-brand-ivory)] hover:after:w-full after:transition-all after:duration-300">Guia de Medidas</button>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center justify-end flex-1 gap-5 sm:gap-6">
+          <div className="flex items-center justify-end shrink-0 gap-5 sm:gap-6">
             <button onClick={openSearch} className="opacity-85 hover:opacity-100 transition-opacity" aria-label="Buscar">
               <Search className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
             </button>
