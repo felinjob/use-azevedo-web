@@ -5,17 +5,13 @@ import { Home, Search, ShoppingBag, MessageCircle } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { useUIStore } from '@/lib/store/ui'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useIsMounted } from '@/hooks/useIsMounted'
 
 export default function MobileTabBar() {
   const { openCart, getTotalItems } = useCartStore()
   const { openSearch } = useUIStore()
   const pathname = usePathname()
-  
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useIsMounted()
 
   // Don't show in admin routes or checkout
   if (pathname.startsWith('/admin') || pathname.startsWith('/checkout')) {

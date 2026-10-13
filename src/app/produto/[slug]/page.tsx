@@ -9,6 +9,8 @@ import ProductDetailsView from '@/components/products/ProductDetailsView'
 import MobileStickyCartBar from '@/components/products/MobileStickyCartBar'
 import { serializeProduct } from '@/lib/serializers'
 
+export const revalidate = 120 // Cache ISR de 2 minutos, revalidado sob demanda ao salvar no admin
+
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }

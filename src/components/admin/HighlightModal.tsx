@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { HighlightType } from '@prisma/client'
 import { X, UploadCloud, Loader2 } from 'lucide-react'
 import Image from 'next/image'
@@ -40,40 +40,21 @@ export default function HighlightModal({
   initialData,
   defaultType,
 }: HighlightModalProps) {
-  const [title, setTitle] = useState('')
-  const [subtitle, setSubtitle] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
-  const [linkUrl, setLinkUrl] = useState('')
-  const [type, setType] = useState<HighlightType>(defaultType)
-  const [order, setOrder] = useState<number>(0)
-  const [active, setActive] = useState<boolean>(true)
+  const [title, setTitle] = useState(initialData?.title || '')
+  const [subtitle, setSubtitle] = useState(initialData?.subtitle || '')
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '')
+  const [linkUrl, setLinkUrl] = useState(
+    initialData?.linkUrl || (defaultType === 'HERO_SLIDE' ? '/?filtro=novidades' : '/?categoria=vestidos-e-conjuntos')
+  )
+  const [type, setType] = useState<HighlightType>(initialData?.type || defaultType)
+  const [order, setOrder] = useState<number>(initialData?.order ?? 0)
+  const [active, setActive] = useState<boolean>(initialData?.active ?? true)
   
   const [isUploading, setIsUploading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (initialData) {
-      setTitle(initialData.title)
-      setSubtitle(initialData.subtitle || '')
-      setImageUrl(initialData.imageUrl)
-      setLinkUrl(initialData.linkUrl)
-      setType(initialData.type)
-      setOrder(initialData.order)
-      setActive(initialData.active)
-    } else {
-      setTitle('')
-      setSubtitle('')
-      setImageUrl('')
-      setLinkUrl(defaultType === 'HERO_SLIDE' ? '/?filtro=novidades' : '/?categoria=vestidos-e-conjuntos')
-      setType(defaultType)
-      setOrder(0)
-      setActive(true)
-    }
-    setErrorMessage('')
-  }, [initialData, defaultType, isOpen])
 
   if (!isOpen) return null
 

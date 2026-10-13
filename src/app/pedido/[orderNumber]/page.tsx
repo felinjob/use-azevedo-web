@@ -1,8 +1,7 @@
 import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
-import { CheckCircle, Truck, MapPin, Smartphone, Receipt, CreditCard } from 'lucide-react'
+import { CheckCircle, Truck, MapPin, Smartphone } from 'lucide-react'
 import Topbar from '@/components/layout/Topbar'
 import OrderClientLogic from './OrderClientLogic'
 import OrderStatusClient from './OrderStatusClient'
@@ -38,12 +37,11 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
   const searchReceiptUrl = resolvedSearchParams?.receipt_url as string | undefined
   const searchCaptureMethod = resolvedSearchParams?.capture_method as string | undefined
   
-  const paymentMetadata = order.payment?.metadata as any
+  const paymentMetadata = order.payment?.metadata as { receipt_url?: string } | null
   const finalReceiptUrl = searchReceiptUrl || paymentMetadata?.receipt_url
   
   const captureMethod = searchCaptureMethod || (order.payment?.method === 'PIX' ? 'pix' : 'credit_card')
   const isPix = captureMethod === 'pix'
-  const isPaid = order.status === 'PAID'
 
   const hasMadeToOrder = order.items.some(item => item.product.availability === 'MADE_TO_ORDER')
 

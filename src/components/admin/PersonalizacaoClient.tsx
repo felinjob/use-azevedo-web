@@ -304,12 +304,15 @@ export default function PersonalizacaoClient({
       )}
 
       {/* Modal de Criação / Edição */}
-      <HighlightModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialData={selectedHighlight}
-        defaultType={modalType}
-      />
+      {isModalOpen && (
+        <HighlightModal
+          key={selectedHighlight?.id || `new-${modalType}`}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          initialData={selectedHighlight}
+          defaultType={modalType}
+        />
+      )}
     </div>
   )
 }

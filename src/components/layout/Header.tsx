@@ -5,16 +5,12 @@ import Image from 'next/image'
 import { Search, ShoppingBag, MessageCircle, Menu, ChevronDown } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { useUIStore } from '@/lib/store/ui'
-import { useEffect, useState } from 'react'
+import { useIsMounted } from '@/hooks/useIsMounted'
 
 export default function Header() {
   const { openCart, getTotalItems } = useCartStore()
   const { openMenu, openSearch, openSizeGuide } = useUIStore()
-  
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useIsMounted()
 
   const totalItems = getTotalItems()
 
@@ -38,8 +34,8 @@ export default function Header() {
                 alt="Monograma UA" 
                 width={36} 
                 height={36} 
-                className="hidden lg:block w-9 h-9 object-contain shrink-0"
-                style={{ width: '36px', height: '36px' }}
+                className="hidden lg:block object-contain shrink-0"
+                style={{ width: 'auto', height: 'auto' }}
               />
               <span className="font-serif text-xl md:text-2xl font-normal tracking-[0.25em] uppercase text-[var(--color-brand-ivory)] whitespace-nowrap">
                 Use Azevedo

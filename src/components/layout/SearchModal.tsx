@@ -24,11 +24,11 @@ export default function SearchModal() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
+  const activeResults = query.trim().length >= 2 ? results : []
+
   useEffect(() => {
     if (isSearchOpen) {
       document.body.style.overflow = 'hidden'
-      setQuery('')
-      setResults([])
     } else {
       document.body.style.overflow = 'auto'
     }
@@ -39,14 +39,12 @@ export default function SearchModal() {
 
   // Debounced search
   useEffect(() => {
-    if (!query.trim() || query.trim().length < 2) {
-      setResults([])
-      return
-    }
+    const trimmed = query.trim()
+    if (trimmed.length < 2) return
 
     const timer = setTimeout(() => {
       startTransition(async () => {
-        const found = await searchProducts(query)
+        const found = await searchProducts(trimmed)
         setResults(found)
       })
     }, 250)
@@ -54,15 +52,21 @@ export default function SearchModal() {
     return () => clearTimeout(timer)
   }, [query])
 
+  const handleClose = () => {
+    setQuery('')
+    setResults([])
+    closeSearch()
+  }
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
-    closeSearch()
+    handleClose()
     router.push(`/?busca=${encodeURIComponent(query.trim())}`)
   }
 
   const handleSuggestion = (url: string) => {
-    closeSearch()
+    handleClose()
     router.push(url)
   }
 
@@ -144,9 +148,9 @@ export default function SearchModal() {
                 <div className="pt-2 border-t border-[var(--color-brand-muted)]/15">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-muted)]">
-                      {isPending ? 'Buscando peças...' : `${results.length} resultado(s) encontrado(s)`}
+                      {isPending ? 'Buscando peças...' : `${activeResults.length} resultado(s) encontrado(s)`}
                     </span>
-                    {results.length > 0 && (
+                    {activeResults.length > 0 && (
                       <button 
                         onClick={handleSearchSubmit}
                         className="text-xs font-semibold text-[var(--color-brand-green-deep)] flex items-center gap-1 hover:underline"
@@ -156,13 +160,13 @@ export default function SearchModal() {
                     )}
                   </div>
 
-                  {results.length > 0 ? (
+                  {activeResults.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto pr-1">
-                      {results.map((product) => (
+                      {activeResults.map((product) => (
                         <Link
                           key={product.id}
                           href={`/produto/${product.slug}`}
-                          onClick={closeSearch}
+                          onClick={handleClose}
                           className="flex items-center gap-3 p-2.5 rounded-md bg-white border border-[var(--color-brand-muted)]/15 hover:border-[var(--color-brand-green-deep)] transition-all group"
                         >
                           <div className="relative w-14 h-18 bg-gray-100 rounded-sm overflow-hidden flex-shrink-0">

@@ -11,10 +11,10 @@ export default function PaymentRedirectOverlay({ isVisible }: PaymentRedirectOve
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    if (isVisible) {
-      const timer = setTimeout(() => setProgress(100), 50)
-      return () => clearTimeout(timer)
-    } else {
+    if (!isVisible) return
+    const timer = setTimeout(() => setProgress(100), 50)
+    return () => {
+      clearTimeout(timer)
       setProgress(0)
     }
   }, [isVisible])

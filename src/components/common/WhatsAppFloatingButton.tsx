@@ -9,13 +9,12 @@ export default function WhatsAppFloatingButton() {
   const [showTooltip, setShowTooltip] = useState(true)
   const pathname = usePathname()
 
-  // Hide on admin routes
-  if (pathname.startsWith('/admin')) {
-    return null
-  }
+  const isAdmin = pathname.startsWith('/admin')
 
   // Delay the button appearance slightly
   useEffect(() => {
+    if (isAdmin) return
+
     const timer = setTimeout(() => setIsVisible(true), 2000)
     
     // Auto-hide tooltip after 10 seconds
@@ -25,9 +24,9 @@ export default function WhatsAppFloatingButton() {
       clearTimeout(timer)
       clearTimeout(tooltipTimer)
     }
-  }, [])
+  }, [isAdmin])
 
-  if (!isVisible) return null
+  if (isAdmin || !isVisible) return null
 
   const whatsappNumber = '5521978594358'
   const message = encodeURIComponent('Olá, Amanda! Estou no site da Use Azevedo e gostaria de tirar uma dúvida.')

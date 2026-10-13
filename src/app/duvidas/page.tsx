@@ -1,7 +1,7 @@
 import Topbar from '@/components/layout/Topbar'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { MessageCircle, Package, RefreshCcw, Truck, ShieldCheck } from 'lucide-react'
+import { MessageCircle, Package, RefreshCcw, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
   title: 'Dúvidas Frequentes | Use Azevedo',

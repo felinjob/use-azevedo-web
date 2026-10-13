@@ -22,7 +22,7 @@ export async function GET(
       return NextResponse.json({ error: 'Pedido não encontrado' }, { status: 404 })
     }
 
-    const metadata = order.payment?.metadata as any
+    const metadata = order.payment?.metadata as { receipt_url?: string } | null
     const receiptUrl = metadata?.receipt_url
 
     return NextResponse.json({

@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma'
 import { HighlightType } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 
 export interface HighlightFormData {
   title: string
@@ -14,8 +15,19 @@ export interface HighlightFormData {
   active?: boolean
 }
 
+async function verifyAdminAuth() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('Unauthorized: Acesso restrito a administradores.')
+  }
+  return user
+}
+
 export async function createHighlight(data: HighlightFormData) {
   try {
+    await verifyAdminAuth()
+
     if (!data.title?.trim()) {
       return { success: false, error: 'O título é obrigatório.' }
     }
@@ -49,6 +61,8 @@ export async function createHighlight(data: HighlightFormData) {
 
 export async function updateHighlight(id: string, data: Partial<HighlightFormData>) {
   try {
+    await verifyAdminAuth()
+
     const updateData: Partial<HighlightFormData> = {}
     if (data.title !== undefined) updateData.title = data.title.trim()
     if (data.subtitle !== undefined) updateData.subtitle = data.subtitle?.trim() || null
@@ -74,6 +88,8 @@ export async function updateHighlight(id: string, data: Partial<HighlightFormDat
 
 export async function deleteHighlight(id: string) {
   try {
+    await verifyAdminAuth()
+
     await prisma.bannerHighlight.delete({
       where: { id },
     })
@@ -89,6 +105,8 @@ export async function deleteHighlight(id: string) {
 
 export async function toggleHighlightActive(id: string, currentStatus: boolean) {
   try {
+    await verifyAdminAuth()
+
     await prisma.bannerHighlight.update({
       where: { id },
       data: { active: !currentStatus },

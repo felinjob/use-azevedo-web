@@ -1,4 +1,4 @@
-import { Prisma, Product, ProductVariant, Category } from '@prisma/client'
+import { Product, ProductVariant, Category } from '@prisma/client'
 
 type ProductWithRelations = Product & {
   category: Category;

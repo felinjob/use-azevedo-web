@@ -6,13 +6,13 @@ import ProductCard from '@/components/products/ProductCard'
 import Footer from '@/components/layout/Footer'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import { Prisma } from '@prisma/client'
+import { Prisma, AvailabilityType } from '@prisma/client'
 import { X, Sparkles, SlidersHorizontal, ArrowLeft } from 'lucide-react'
 import PaginationControls from '@/components/ui/PaginationControls'
 import { PAGE_SIZE, AVAILABLE_SIZES } from '@/lib/constants'
 import { serializeProduct, type SerializedProduct } from '@/lib/serializers'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // ISR: Cache na borda por 60s, revalidado via revalidatePath('/')
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -34,8 +34,8 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   const where: Prisma.ProductWhereInput = { active: true }
 
-  if (disponibilidade) {
-    where.availability = disponibilidade as any
+  if (disponibilidade === 'READY_TO_SHIP' || disponibilidade === 'MADE_TO_ORDER') {
+    where.availability = disponibilidade as AvailabilityType
   }
 
   if (categoria) {

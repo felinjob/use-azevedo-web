@@ -40,7 +40,7 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <AutoRefresh intervalMs={5000} />
+      <AutoRefresh intervalMs={30000} />
       <div>
         <h1 className="text-2xl font-serif text-[var(--color-brand-dark)]">Gestão de Pedidos</h1>
         <p className="text-gray-500 text-sm mt-1">Acompanhe e gerencie as vendas da Use Azevedo.</p>

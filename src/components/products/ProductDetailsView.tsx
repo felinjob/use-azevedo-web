@@ -8,7 +8,7 @@ import ProductFAQ from './ProductFAQ'
 import { MessageCircle, ShoppingBag, Truck, ArrowLeftRight, AlertCircle, Ruler } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCartStore } from '@/lib/store/cart'
-import { SerializedProduct, SerializedVariant } from '@/lib/serializers'
+import { SerializedProduct } from '@/lib/serializers'
 
 interface ProductDetailsViewProps {
   product: SerializedProduct
@@ -16,7 +16,7 @@ interface ProductDetailsViewProps {
 
 export default function ProductDetailsView({ product }: ProductDetailsViewProps) {
   const validImages = (product.images || []).filter((img) => {
-    const url = typeof img === 'string' ? img : (img as any)?.url;
+    const url = typeof img === 'string' ? img : (img as { url?: string })?.url;
     return Boolean(
       url &&
       typeof url === 'string' &&

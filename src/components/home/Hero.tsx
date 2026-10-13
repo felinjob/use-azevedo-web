@@ -39,9 +39,12 @@ export default function Hero({ slides = [] }: HeroProps) {
 
   useEffect(() => {
     if (!emblaApi) return
-    onSelect()
     emblaApi.on('select', onSelect)
     emblaApi.on('reInit', onSelect)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
   }, [emblaApi, onSelect])
 
   if (!hasSlides) {

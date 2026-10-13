@@ -58,10 +58,7 @@ export async function POST(req: NextRequest) {
     const { 
       order_nsu, 
       transaction_nsu, 
-      capture_method, 
-      receipt_url, 
-      amount, 
-      paid_amount 
+      capture_method 
     } = body;
 
     if (!order_nsu) {

@@ -66,7 +66,7 @@ export async function createProduct(data: ProductFormState) {
   } catch (error: unknown) {
     console.error('Error creating product:', error)
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
-      const meta = (error as any).meta
+      const meta = (error as { meta?: { target?: unknown } }).meta
       const target = meta?.target || []
       const targetStr = Array.isArray(target) ? target.join(',') : String(target)
       if (targetStr.includes('sku')) {
@@ -159,7 +159,7 @@ export async function updateProduct(id: string, data: ProductFormState) {
   } catch (error: unknown) {
     console.error('Error updating product:', error)
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
-      const meta = (error as any).meta
+      const meta = (error as { meta?: { target?: unknown } }).meta
       const target = meta?.target || []
       const targetStr = Array.isArray(target) ? target.join(',') : String(target)
       if (targetStr.includes('sku')) {

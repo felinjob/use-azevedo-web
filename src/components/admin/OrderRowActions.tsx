@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { OrderStatus, ShippingType } from '@prisma/client'
 import { updateOrderStatus } from '@/app/actions/update-order-status'
-import { MoreVertical, Check, Truck, X } from 'lucide-react'
+import { MoreVertical, Check, X } from 'lucide-react'
 
 interface OrderRowActionsProps {
   orderId: string

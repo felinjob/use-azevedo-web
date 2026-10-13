@@ -19,7 +19,7 @@ export default function Footer() {
                 width={80} 
                 height={80} 
                 className="object-contain" 
-                style={{ width: '80px', height: 'auto' }}
+                style={{ width: 'auto', height: 'auto' }}
               />
             </div>
             <p className="text-sm font-light text-[var(--color-brand-ivory)]/60 leading-relaxed mb-6">

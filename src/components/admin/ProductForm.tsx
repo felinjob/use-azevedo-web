@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AvailabilityType } from '@prisma/client'
 import ImageUploader from './ImageUploader'
@@ -49,6 +49,16 @@ interface ProductFormProps {
 
 const ALL_AVAILABLE_SIZES = ['P', 'M', 'G', 'GG', 'G1', 'G2', 'G3', '44', '46', '48', '50', '52', '54', '56', 'Tamanho Único']
 
+let localIdSeed = 0
+function generateLocalId() {
+  localIdSeed += 1
+  return `id-${Date.now()}-${localIdSeed}`
+}
+
+function generateSkuHash() {
+  return Math.random().toString(36).substring(2, 7).toUpperCase()
+}
+
 // Local state for Color Blocks
 interface ColorBlock {
   localId: string
@@ -85,24 +95,23 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
     variants: []
   })
 
-  // Derive unique colors from initialData variants
-  const initialColors: ColorBlock[] = []
-  if (initialData && initialData.variants.length > 0) {
-    const colorMap = new Map<string, string>()
-    initialData.variants.forEach(v => {
-      if (!colorMap.has(v.color)) {
-        colorMap.set(v.color, v.colorHex)
-      }
-    })
-    colorMap.forEach((hex, name) => {
-      initialColors.push({ localId: Math.random().toString(36).substr(2, 9), name, hex })
-    })
-  } else {
-    // Default single color
-    initialColors.push({ localId: Math.random().toString(36).substr(2, 9), name: 'Preto', hex: '#000000' })
-  }
-
-  const [colors, setColors] = useState<ColorBlock[]>(initialColors)
+  const [colors, setColors] = useState<ColorBlock[]>(() => {
+    const list: ColorBlock[] = []
+    if (initialData && initialData.variants.length > 0) {
+      const colorMap = new Map<string, string>()
+      initialData.variants.forEach(v => {
+        if (!colorMap.has(v.color)) {
+          colorMap.set(v.color, v.colorHex)
+        }
+      })
+      colorMap.forEach((hex, name) => {
+        list.push({ localId: generateLocalId(), name, hex })
+      })
+    } else {
+      list.push({ localId: generateLocalId(), name: 'Preto', hex: '#000000' })
+    }
+    return list
+  })
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value
@@ -179,7 +188,7 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
     } else {
       // Add variant
       const colorSlug = colorName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-      const newSkuHash = Math.random().toString(36).substring(2, 7).toUpperCase()
+      const newSkuHash = generateSkuHash()
       const slugPrefix = formData.slug ? formData.slug.toUpperCase().substring(0, 5) : 'NEW'
       const sku = `UA-${slugPrefix}-${colorSlug.toUpperCase().substring(0,3)}-${size}-${newSkuHash}`
 
@@ -449,7 +458,7 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
         </div>
 
         <div className="space-y-6">
-          {colors.map((colorBlock, colorIndex) => {
+          {colors.map((colorBlock) => {
             const activeSizes = formData.variants.filter(v => v.color === colorBlock.name).map(v => v.size)
 
             return (
@@ -551,7 +560,7 @@ export default function ProductForm({ categories, initialData }: ProductFormProp
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100">
-                            {formData.variants.filter(v => v.color === colorBlock.name).map((variant, index) => (
+                            {formData.variants.filter(v => v.color === colorBlock.name).map((variant) => (
                               <tr key={variant.size} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-3 py-2 font-bold text-[var(--color-brand-dark)] bg-gray-50/50">{variant.size}</td>
                                 <td className="px-3 py-2">

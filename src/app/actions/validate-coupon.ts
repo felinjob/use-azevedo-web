@@ -66,7 +66,7 @@ export async function validateCoupon(code: string, subtotal: number) {
       value: discountValue,
       id: coupon.id
     }
-  } catch (error: unknown) {
+  } catch {
     return { valid: false, error: 'Erro ao validar cupom.' }
   }
 }
