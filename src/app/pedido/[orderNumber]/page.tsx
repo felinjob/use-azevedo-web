@@ -45,7 +45,7 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
 
   const hasMadeToOrder = order.items.some(item => item.product.availability === 'MADE_TO_ORDER')
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE || '5521999999999'
+  const whatsappNumber = process.env.NEXT_PUBLIC_CONTACT_PHONE || '5521978594358'
   const whatsappMessage = encodeURIComponent(`Olá! Acabei de realizar o pedido ${order.orderNumber}. Gostaria de acompanhar o status!`)
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
 

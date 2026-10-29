@@ -28,8 +28,8 @@ export async function createHighlight(data: HighlightFormData) {
   try {
     await verifyAdminAuth()
 
-    if (!data.title?.trim()) {
-      return { success: false, error: 'O título é obrigatório.' }
+    if (data.type === 'STORY_CIRCLE' && !data.title?.trim()) {
+      return { success: false, error: 'O rótulo do Story é obrigatório.' }
     }
     if (!data.imageUrl?.trim()) {
       return { success: false, error: 'A imagem é obrigatória.' }
@@ -40,7 +40,7 @@ export async function createHighlight(data: HighlightFormData) {
 
     const highlight = await prisma.bannerHighlight.create({
       data: {
-        title: data.title.trim(),
+        title: (data.title || '').trim(),
         subtitle: data.subtitle?.trim() || null,
         imageUrl: data.imageUrl.trim(),
         linkUrl: data.linkUrl.trim(),

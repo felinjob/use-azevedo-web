@@ -12,19 +12,19 @@ interface FAQItem {
 
 const FAQ_ITEMS: FAQItem[] = [
   {
-    question: "Como funciona a entrega Sob Encomenda?",
-    answer: "Peças sob encomenda são produzidas exclusivamente para você. O prazo de confecção (em dias úteis) é somado ao prazo de envio escolhido. Assim, você garante uma peça exclusiva com caimento perfeito.",
-    icon: <Package className="w-5 h-5 text-[var(--color-brand-gold)]" />
+    question: "Como funciona a modalidade Sob Encomenda?",
+    answer: "Peças sob encomenda são confeccionadas especialmente para o seu pedido. O prazo de produção (em dias úteis) já é somado à estimativa de entrega no checkout, garantindo uma peça nova, impecável e na sua medida.",
+    icon: <Package className="w-5 h-5 text-[var(--color-brand-green-deep)]" />
   },
   {
-    question: "A entrega via Motoboy chega no mesmo dia?",
-    answer: "A entrega via Motoboy é válida para o Rio de Janeiro e ocorre em 1 a 2 dias úteis. Caso a peça seja Pronta Entrega e o pedido aprovado até as 12h, frequentemente entregamos no dia seguinte.",
-    icon: <Truck className="w-5 h-5 text-[var(--color-brand-gold)]" />
+    question: "Como funciona a entrega via Motoboy no Rio de Janeiro?",
+    answer: "Disponível para toda a capital do RJ. Após a aprovação do pedido (ou conclusão da confecção), combinamos a janela de entrega diretamente com você pelo WhatsApp para sua total comodidade.",
+    icon: <Truck className="w-5 h-5 text-[var(--color-brand-green-deep)]" />
   },
   {
-    question: "Como funciona a primeira troca grátis?",
-    answer: "Você tem até 7 dias úteis após o recebimento para solicitar a troca ou devolução. A primeira troca tem o frete por nossa conta! (Exceção: itens de bazar/promoção).",
-    icon: <RefreshCcw className="w-5 h-5 text-[var(--color-brand-gold)]" />
+    question: "E se eu precisar trocar o tamanho?",
+    answer: "Você tem até 7 dias corridos após o recebimento para solicitar a troca ou devolução (Art. 49 do CDC). O frete da primeira troca é por nossa conta em peças da coleção regular.",
+    icon: <RefreshCcw className="w-5 h-5 text-[var(--color-brand-green-deep)]" />
   }
 ]
 

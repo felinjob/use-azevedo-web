@@ -35,6 +35,11 @@ export interface SerializedProduct {
 }
 
 export function serializeProduct(product: ProductWithRelations): SerializedProduct {
+  // Filtra variantes arquivadas (sem cor/tamanho ativo) que foram mantidas apenas por integridade de pedidos antigos
+  const activeVariants = product.variants.filter(
+    (v: ProductVariant) => Boolean(v.size && v.size.trim() !== '' && v.color && v.color.trim() !== '')
+  )
+
   return {
     ...product,
     price: Number(product.price),
@@ -42,14 +47,14 @@ export function serializeProduct(product: ProductWithRelations): SerializedProdu
     category: {
       name: product.category.name,
     },
-    variants: product.variants.map((v: ProductVariant) => ({
+    variants: activeVariants.map((v: ProductVariant) => ({
       ...v,
+      color: v.color.trim(),
+      colorHex: (v.colorHex || '#141414').trim(),
       bustCm: v.bustCm ? Number(v.bustCm) : null,
       waistCm: v.waistCm ? Number(v.waistCm) : null,
       hipCm: v.hipCm ? Number(v.hipCm) : null,
       lengthCm: v.lengthCm ? Number(v.lengthCm) : null,
-      color: v.color || undefined,
-      colorHex: v.colorHex || undefined,
     })),
   }
 }

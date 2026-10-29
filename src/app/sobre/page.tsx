@@ -34,12 +34,12 @@ export default function SobrePage() {
 
               {/* Bloco 1 */}
               <div className="my-16 border-l-2 border-[var(--color-brand-green-deep)] pl-6">
-                <h3 className="text-2xl font-serif text-[#1A1A1A] mb-4 font-normal">Curadoria Cuidadosa no RJ</h3>
+                <h3 className="text-2xl font-serif text-[#1A1A1A] mb-4 font-normal">Curadoria Autoral no Rio de Janeiro</h3>
                 <p className="text-[15px] leading-relaxed mb-4">
-                  Mais do que uma loja, somos um olhar atento no coração do Rio de Janeiro. A Amanda garimpa e seleciona pessoalmente as melhores peças e tecidos do mercado.
+                  Mais do que uma marca, somos um olhar atento e especializado no coração do Rio de Janeiro. A Amanda acompanha pessoalmente a modelagem, a escolha dos tecidos e o desenvolvimento de cada peça da coleção.
                 </p>
                 <p className="text-[15px] leading-relaxed">
-                  Cada modelo do nosso catálogo passa por um crivo rigoroso de toque, elasticidade, sustentação e durabilidade — garantindo que você receba peças com acabamento premium e caimento impecável.
+                  Cada modelo do nosso catálogo passa por um crivo rigoroso de toque, gramatura, sustentação de busto e fluidez de movimento — garantindo que você vista peças com acabamento de alfaiataria e caimento impecável.
                 </p>
               </div>
 

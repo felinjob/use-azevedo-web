@@ -4,6 +4,9 @@ import ProductForm, { ProductFormState } from '@/components/admin/ProductForm'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
   
@@ -24,6 +27,8 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     orderBy: { name: 'asc' }
   })
 
+  const activeVariants = product.variants.filter(v => Boolean(v.color && v.color.trim() !== '' && v.size && v.size.trim() !== ''))
+
   const initialData: ProductFormState = {
     id: product.id,
     name: product.name,
@@ -38,11 +43,11 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     featured: product.featured,
     active: product.active,
     images: product.images,
-    variants: product.variants.map(v => ({
+    variants: activeVariants.map(v => ({
       id: v.id,
-      size: v.size,
-      color: v.color,
-      colorHex: v.colorHex,
+      size: v.size.trim(),
+      color: v.color.trim(),
+      colorHex: (v.colorHex || '#141414').trim(),
       sku: v.sku,
       stockQuantity: v.stockQuantity,
       bustCm: v.bustCm ? Number(v.bustCm) : null,

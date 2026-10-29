@@ -52,10 +52,10 @@ export default function PoliticaTrocasPage() {
 
             <section className="bg-[var(--color-brand-canvas)] p-5 rounded-sm border border-[var(--color-brand-muted)]/15">
               <h2 className="text-base sm:text-lg font-serif font-bold text-[var(--color-brand-dark)] mb-2">
-                2. Troca de Numeração ou Modelo
+                2. Troca de Numeração ou Modelo (1ª Troca Grátis)
               </h2>
               <p className="text-xs sm:text-sm">
-                Se a peça não serviu com o caimento desejado ou você prefere outra cor, disponibilizamos a primeira troca em até <strong>7 (sete) dias úteis</strong> após o recebimento:
+                Se a peça não serviu com o caimento desejado ou você prefere outra cor ou tamanho, disponibilizamos a primeira troca com frete por nossa conta em até <strong>7 (sete) dias corridos</strong> após o recebimento:
               </p>
               <ul className="list-disc pl-5 space-y-1.5 mt-3 text-xs sm:text-sm">
                 <li>Entre em contato com nossa equipe via WhatsApp informando o número do pedido.</li>

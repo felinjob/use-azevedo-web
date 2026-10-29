@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, Eye, EyeOff, Sparkles, ExternalLink, Image as Imag
 import Image from 'next/image'
 import HighlightModal from './HighlightModal'
 import { toggleHighlightActive, deleteHighlight } from '@/app/actions/manage-highlights'
+import { parseHeroImage } from '@/lib/hero-framing'
 
 export interface SerializedHighlight {
   id: string
@@ -136,7 +137,10 @@ export default function PersonalizacaoClient({
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {heroSlides.map((slide) => (
+              {heroSlides.map((slide) => {
+                const hasText = Boolean(slide.title?.trim() || slide.subtitle?.trim())
+                const { cleanUrl, framing } = parseHeroImage(slide.imageUrl, hasText)
+                return (
                 <div 
                   key={slide.id}
                   className={`bg-white rounded-md border overflow-hidden shadow-xs transition-all ${
@@ -144,21 +148,40 @@ export default function PersonalizacaoClient({
                   }`}
                 >
                   {/* Banner Preview */}
-                  <div className="relative aspect-[16/8] bg-gray-100">
-                    <Image
-                      src={slide.imageUrl}
-                      alt={slide.title}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
-                      <h3 className="font-serif text-lg font-bold leading-tight">{slide.title}</h3>
+                  <div className="relative aspect-[16/8] bg-gray-900 overflow-hidden">
+                    {cleanUrl && (
+                      <div
+                        className="absolute inset-0 w-full h-full"
+                        style={{
+                          transform: framing.zoom !== 100 ? `scale(${framing.zoom / 100})` : undefined,
+                          transformOrigin: `${framing.x}% ${framing.y}%`,
+                        }}
+                      >
+                        <Image
+                          src={cleanUrl}
+                          alt={slide.title || 'Slide sem título (Arte Limpa)'}
+                          fill
+                          className={framing.fit === 'contain' ? 'object-contain' : 'object-cover'}
+                          style={{
+                            objectPosition: `${framing.x}% ${framing.y}%`,
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
+                      {slide.title?.trim() ? (
+                        <h3 className="font-serif text-lg font-bold leading-tight">{slide.title}</h3>
+                      ) : (
+                        <span className="text-xs uppercase tracking-widest text-white/80 font-semibold">
+                          Arte Limpa (Sem Texto Sobreposto)
+                        </span>
+                      )}
                       {slide.subtitle && (
                         <p className="text-xs text-gray-200 line-clamp-1 mt-0.5">{slide.subtitle}</p>
                       )}
                     </div>
                     {/* Badges */}
-                    <div className="absolute top-3 left-3 flex gap-2">
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                       <span className="bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-wider">
                         Ordem #{slide.order}
                       </span>
@@ -167,6 +190,11 @@ export default function PersonalizacaoClient({
                       }`}>
                         {slide.active ? 'Ativo' : 'Oculto'}
                       </span>
+                      {framing.zoom !== 100 && (
+                        <span className="bg-white/85 text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-xs">
+                          Zoom {framing.zoom}%
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -201,7 +229,7 @@ export default function PersonalizacaoClient({
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(slide.id, slide.title)}
+                        onClick={() => handleDelete(slide.id, slide.title || 'Arte Limpa')}
                         className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-sm transition-colors"
                         title="Excluir slide"
                       >
@@ -210,7 +238,7 @@ export default function PersonalizacaoClient({
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>
@@ -244,7 +272,7 @@ export default function PersonalizacaoClient({
                   <div className="relative w-20 h-20 rounded-full p-[2.5px] bg-[var(--color-brand-green-deep)] ring-2 ring-[var(--color-brand-ivory)] shadow-sm mb-3">
                     <div className="w-full h-full rounded-full overflow-hidden relative border-2 border-white">
                       <Image
-                        src={story.imageUrl}
+                        src={parseHeroImage(story.imageUrl).cleanUrl}
                         alt={story.title}
                         fill
                         className="object-cover"

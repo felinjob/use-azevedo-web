@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 
 export default function WhatsAppFloatingButton() {
   const [isVisible, setIsVisible] = useState(false)
-  const [showTooltip, setShowTooltip] = useState(true)
+  const [showTooltip, setShowTooltip] = useState(false)
   const pathname = usePathname()
 
   const isAdmin = pathname.startsWith('/admin')
@@ -15,15 +15,8 @@ export default function WhatsAppFloatingButton() {
   useEffect(() => {
     if (isAdmin) return
 
-    const timer = setTimeout(() => setIsVisible(true), 2000)
-    
-    // Auto-hide tooltip after 10 seconds
-    const tooltipTimer = setTimeout(() => setShowTooltip(false), 12000)
-    
-    return () => {
-      clearTimeout(timer)
-      clearTimeout(tooltipTimer)
-    }
+    const timer = setTimeout(() => setIsVisible(true), 1500)
+    return () => clearTimeout(timer)
   }, [isAdmin])
 
   if (isAdmin || !isVisible) return null
@@ -33,21 +26,24 @@ export default function WhatsAppFloatingButton() {
   const link = `https://wa.me/${whatsappNumber}?text=${message}`
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end animate-in slide-in-from-bottom-8 fade-in duration-500">
+    <div
+      onMouseLeave={() => setShowTooltip(false)}
+      className="hidden md:flex fixed bottom-6 right-6 z-40 flex-col items-end animate-in slide-in-from-bottom-8 fade-in duration-500"
+    >
       
       {/* Tooltip */}
       {showTooltip && (
-        <div className="mb-4 bg-white text-[var(--color-brand-dark)] text-sm px-4 py-3 rounded-lg shadow-xl border border-gray-100 flex items-start gap-3 relative animate-in fade-in duration-300">
-          <p className="font-medium pr-2">Dúvidas sobre tamanhos ou pedidos? Fale conosco!</p>
+        <div className="mb-3 bg-white text-[var(--color-brand-dark)] text-xs px-4 py-2.5 rounded-sm shadow-lg border border-gray-200 flex items-center gap-3 relative animate-in fade-in duration-200">
+          <p className="font-medium">Dúvidas sobre tamanhos ou caimento? Fale com a Amanda</p>
           <button 
             onClick={() => setShowTooltip(false)}
-            className="text-gray-400 hover:text-gray-600 transition-colors shrink-0 pt-0.5"
+            className="text-gray-400 hover:text-gray-600 transition-colors shrink-0"
             aria-label="Fechar mensagem"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
           {/* Arrow */}
-          <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white border-b border-r border-gray-100 transform rotate-45" />
+          <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-b border-r border-gray-200 transform rotate-45" />
         </div>
       )}
 
@@ -57,16 +53,10 @@ export default function WhatsAppFloatingButton() {
         target="_blank"
         rel="noopener noreferrer"
         onMouseEnter={() => setShowTooltip(true)}
-        className="relative group bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
+        className="relative group bg-[#128C7E] hover:bg-[#0B3B24] text-white w-13 h-13 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 border border-white/20"
         aria-label="Falar no WhatsApp"
       >
-        <MessageCircle className="w-7 h-7" />
-        
-        {/* Notification Badge */}
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-        
-        {/* Ping Animation */}
-        <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-0 group-hover:animate-ping" />
+        <MessageCircle className="w-6 h-6" />
       </a>
     </div>
   )

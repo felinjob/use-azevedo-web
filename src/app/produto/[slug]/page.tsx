@@ -6,6 +6,7 @@ import Topbar from '@/components/layout/Topbar'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProductDetailsView from '@/components/products/ProductDetailsView'
+import ProductCard from '@/components/products/ProductCard'
 import MobileStickyCartBar from '@/components/products/MobileStickyCartBar'
 import { serializeProduct } from '@/lib/serializers'
 
@@ -82,6 +83,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound()
   }
 
+  // Buscar peças relacionadas (mesma categoria ou outras peças ativas)
+  const relatedProducts = await prisma.product.findMany({
+    where: {
+      active: true,
+      id: { not: product.id },
+    },
+    include: {
+      category: true,
+      variants: true,
+    },
+    orderBy: [
+      { featured: 'desc' },
+      { createdAt: 'desc' },
+    ],
+    take: 4,
+  })
+
+  const serializedProduct = serializeProduct(product)
+  const serializedRelated = relatedProducts.map(serializeProduct)
+
   return (
     <div className="min-h-screen flex flex-col font-sans">
       <Topbar />
@@ -90,19 +111,40 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <main className="flex-grow bg-[var(--color-brand-canvas)]">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           {/* Breadcrumb */}
-          <div className="text-xs text-[var(--color-brand-muted)] uppercase tracking-wider mb-8">
-            <Link href="/" className="hover:text-[var(--color-brand-green-deep)] transition-colors">Home</Link>
+          <nav aria-label="Breadcrumb" className="text-xs text-[var(--color-brand-muted)] uppercase tracking-wider mb-8">
+            <Link href="/" className="hover:text-[var(--color-brand-green-deep)] transition-colors">Início</Link>
             <span className="mx-2">/</span>
-            <span>{product.category.name}</span>
+            <Link href={`/?categoria=${product.category.slug}#colecao`} className="hover:text-[var(--color-brand-green-deep)] transition-colors">
+              {product.category.name}
+            </Link>
             <span className="mx-2">/</span>
             <span className="text-[var(--color-brand-dark)] font-bold">{product.name}</span>
-          </div>
+          </nav>
 
-          <ProductDetailsView product={serializeProduct(product)} />
+          <ProductDetailsView product={serializedProduct} />
         </div>
+
+        {/* Peças Relacionadas */}
+        {serializedRelated.length > 0 && (
+          <section className="py-12 sm:py-16 border-t border-[var(--color-brand-muted)]/15 bg-white/50">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col items-center mb-8 sm:mb-10">
+                <h2 className="text-2xl sm:text-3xl font-serif text-[var(--color-brand-dark)] mb-2 text-center">
+                  Complete o Seu Closet
+                </h2>
+                <div className="w-12 h-[2px] bg-[var(--color-brand-gold)]" />
+              </div>
+              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4 lg:gap-8">
+                {serializedRelated.map((rel) => (
+                  <ProductCard key={rel.id} product={rel} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
-      <MobileStickyCartBar product={serializeProduct(product)} />
+      <MobileStickyCartBar product={serializedProduct} />
       <Footer />
     </div>
   )

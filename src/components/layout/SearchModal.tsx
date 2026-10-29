@@ -8,13 +8,14 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { searchProducts, SearchProductResult } from '@/app/actions/search-products'
+import { formatCurrency } from '@/lib/formatters'
 
 const SUGGESTIONS = [
-  { label: 'Vestido Midi', query: '/?categoria=vestidos-e-conjuntos' },
-  { label: 'Linho', query: '/?busca=linho' },
-  { label: 'Tamanho 48', query: '/?tamanho=48' },
-  { label: 'Tamanho 52', query: '/?tamanho=52' },
-  { label: 'Pronta Entrega', query: '/?disponibilidade=READY_TO_SHIP' },
+  { label: 'Vestidos', query: '/?categoria=vestidos-e-vestidos-curtos#colecao' },
+  { label: 'Conjuntos', query: '/?categoria=conjuntos-e-macacoes#colecao' },
+  { label: 'Tamanho 48', query: '/?tamanho=48#colecao' },
+  { label: 'Tamanho 52', query: '/?tamanho=52#colecao' },
+  { label: 'Pronta Entrega', query: '/?disponibilidade=READY_TO_SHIP#colecao' },
 ]
 
 export default function SearchModal() {
@@ -189,7 +190,7 @@ export default function SearchModal() {
                             </h4>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-xs sm:text-sm font-bold text-[var(--color-brand-dark)]">
-                                R$ {product.price.toFixed(2).replace('.', ',')}
+                                {formatCurrency(product.price)}
                               </span>
                               <span className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-xs ${
                                 product.availability === 'MADE_TO_ORDER'

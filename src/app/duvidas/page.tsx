@@ -37,7 +37,7 @@ export default function DuvidasPage() {
                 </div>
                 <div className="bg-white p-6 border border-gray-100 rounded-sm shadow-sm">
                   <h3 className="font-bold text-[var(--color-brand-dark)] mb-2">A entrega via Motoboy atende minha região?</h3>
-                  <p className="text-sm text-gray-600">O frete via Motoboy está disponível exclusivamente para a capital do Rio de Janeiro. Ao digitar seu CEP no checkout, a opção aparecerá automaticamente se for elegível.</p>
+                  <p className="text-sm text-gray-600">Sim! O envio via Motoboy Expresso está disponível para toda a capital do Rio de Janeiro (CEPs 20000-000 a 23799-999). Após a aprovação do pedido, a taxa e o horário de entrega são combinados diretamente com a Amanda pelo WhatsApp.</p>
                 </div>
               </div>
             </section>
@@ -51,11 +51,11 @@ export default function DuvidasPage() {
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="bg-white p-6 border border-gray-100 rounded-sm shadow-sm">
                   <h3 className="font-bold text-[var(--color-brand-dark)] mb-2">A primeira troca é grátis?</h3>
-                  <p className="text-sm text-gray-600">Sim! A Use Azevedo arca com o frete da sua primeira troca. Você tem até 7 dias úteis após o recebimento para solicitar a troca pelo nosso WhatsApp.</p>
+                  <p className="text-sm text-gray-600">Sim! A Use Azevedo arca com o frete de envio da sua primeira troca por tamanho ou modelo. Você tem até 7 dias corridos após o recebimento (conforme o Art. 49 do CDC) para solicitar a troca ou devolução pelo nosso WhatsApp.</p>
                 </div>
                 <div className="bg-white p-6 border border-gray-100 rounded-sm shadow-sm">
                   <h3 className="font-bold text-[var(--color-brand-dark)] mb-2">Posso trocar itens em promoção?</h3>
-                  <p className="text-sm text-gray-600">Peças adquiridas em seções de Bazar, Sale ou com cupons promocionais específicos não são elegíveis para a política de troca grátis.</p>
+                  <p className="text-sm text-gray-600">Peças adquiridas em seções de Bazar ou liquidação final não possuem frete de troca gratuita por tamanho, mantendo-se integralmente garantido o direito legal de arrependimento em até 7 dias corridos.</p>
                 </div>
               </div>
             </section>
@@ -69,11 +69,11 @@ export default function DuvidasPage() {
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="bg-white p-6 border border-gray-100 rounded-sm shadow-sm">
                   <h3 className="font-bold text-[var(--color-brand-dark)] mb-2">Quais as formas de pagamento?</h3>
-                  <p className="text-sm text-gray-600">Aceitamos pagamentos via PIX (com aprovação imediata) e Cartão de Crédito, parcelando em até 12x sem juros.</p>
+                  <p className="text-sm text-gray-600">Aceitamos pagamentos via PIX (com aprovação imediata) e Cartão de Crédito via InfinitePay.</p>
                 </div>
                 <div className="bg-white p-6 border border-gray-100 rounded-sm shadow-sm">
                   <h3 className="font-bold text-[var(--color-brand-dark)] mb-2">Como funciona o Frete Grátis?</h3>
-                  <p className="text-sm text-gray-600">Ganhe frete grátis nas opções PAC e Motoboy RJ em compras acima de R$ 199 pagando no PIX, ou acima de R$ 299 no Cartão de Crédito.</p>
+                  <p className="text-sm text-gray-600">Você ganha Frete Grátis via Correios PAC para todo o Brasil em compras acima de R$ 199 pagando no PIX, ou acima de R$ 299 no Cartão de Crédito.</p>
                 </div>
               </div>
             </section>
