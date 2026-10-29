@@ -182,8 +182,8 @@ export default function RastreioPage() {
                 <div className="bg-green-50 p-4 border border-green-200 mt-6 text-center text-sm">
                   {result.shippingType === 'MOTOBOY_RJ' ? (
                     <p className="text-green-800 font-medium">
-                      O seu pedido saiu para entrega com nosso Motoboy VIP! 🎉
-                      {result.motoboyNotes && <span className="block mt-1 font-normal text-green-700">Nota: {result.motoboyNotes}</span>}
+                      O seu pedido saiu para entrega via Motoboy Expresso (Rio de Janeiro).
+                      {result.motoboyNotes && <span className="block mt-1 font-normal text-green-700">Observação: {result.motoboyNotes}</span>}
                     </p>
                   ) : result.shippingType === 'PICKUP' ? (
                     <p className="text-green-800 font-medium">

@@ -44,8 +44,8 @@ interface HighlightModalProps {
 const LINK_PRESETS = [
   { label: 'Novidades', url: '/?filtro=novidades' },
   { label: 'Vestidos & Vestidos Curtos', url: '/?categoria=vestidos-e-vestidos-curtos' },
-  { label: 'Conjuntos & Macacões', url: '/?categoria=conjuntos-e-macacoes' },
-  { label: 'Blusas & Croppeds', url: '/?categoria=blusas-e-croppeds' },
+  { label: 'Croppeds & Blusas', url: '/?categoria=cropped-e-blusas' },
+  { label: 'Macaquinhos & Conjuntos', url: '/?categoria=macaquinhos-e-conjuntos' },
   { label: 'Saias, Calças & Shorts', url: '/?categoria=saias-calcas-e-shorts' },
   { label: 'Pronta Entrega', url: '/?disponibilidade=READY_TO_SHIP' },
   { label: 'Sob Encomenda', url: '/?disponibilidade=MADE_TO_ORDER' },

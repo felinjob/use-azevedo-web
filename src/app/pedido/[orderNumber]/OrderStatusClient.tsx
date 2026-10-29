@@ -65,12 +65,12 @@ export default function OrderStatusClient({
           {isPix ? (
             <span className="bg-emerald-100 text-emerald-800 text-sm font-semibold px-3 py-1 rounded-full flex items-center">
               <CheckCircle className="w-4 h-4 mr-1" />
-              Pago via Pix
+              {isPaid ? 'Pago via Pix' : 'Modalidade: Pix'}
             </span>
           ) : (
             <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full flex items-center">
               <CreditCard className="w-4 h-4 mr-1" />
-              Pago via Cartão de Crédito
+              {isPaid ? 'Pago via Cartão de Crédito' : 'Modalidade: Cartão de Crédito'}
             </span>
           )}
         </div>

@@ -134,10 +134,15 @@ export default function CartDrawer() {
                       </button>
                     </div>
                     
-                    <div className="mt-1 flex items-center gap-2">
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
                       <span className="text-xs bg-gray-100 text-[var(--color-brand-dark)] font-bold px-2 py-0.5 rounded-sm">
                         Tam: {item.size}
                       </span>
+                      {item.color && (
+                        <span className="text-xs bg-gray-100 text-[var(--color-brand-muted)] font-medium px-2 py-0.5 rounded-sm">
+                          Cor: {item.color}
+                        </span>
+                      )}
                     </div>
 
                     <p className="mt-2 text-xs text-[var(--color-brand-muted)]">

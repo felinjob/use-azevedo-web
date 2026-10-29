@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const MESSAGES = [
-  "📦 Frete Grátis acima de R$ 199 (Pix) ou R$ 299 (Cartão)!",
-  "📏 Na dúvida sobre o tamanho? Use nosso Provador Virtual!",
-  "💳 Parcele suas compras em até 12x"
+  "Frete Grátis via PAC acima de R$ 199 no PIX ou R$ 299 no Cartão",
+  "Dúvida na numeração? Use o Consultor de Caimento na página da peça",
+  "Modelagem autoral do 44 ao 56+ • Primeira troca por nossa conta"
 ]
 
 export default function Topbar() {

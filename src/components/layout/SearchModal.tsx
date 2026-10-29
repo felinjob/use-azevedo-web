@@ -12,7 +12,8 @@ import { formatCurrency } from '@/lib/formatters'
 
 const SUGGESTIONS = [
   { label: 'Vestidos', query: '/?categoria=vestidos-e-vestidos-curtos#colecao' },
-  { label: 'Conjuntos', query: '/?categoria=conjuntos-e-macacoes#colecao' },
+  { label: 'Macaquinhos & Conjuntos', query: '/?categoria=macaquinhos-e-conjuntos#colecao' },
+  { label: 'Croppeds & Blusas', query: '/?categoria=cropped-e-blusas#colecao' },
   { label: 'Tamanho 48', query: '/?tamanho=48#colecao' },
   { label: 'Tamanho 52', query: '/?tamanho=52#colecao' },
   { label: 'Pronta Entrega', query: '/?disponibilidade=READY_TO_SHIP#colecao' },
